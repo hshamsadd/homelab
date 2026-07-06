@@ -7,10 +7,12 @@
 *.p12
 *.kubeconfig
 kubeconfig
-secrets/
-**/secrets/
-**/*secret*.yaml
-**/*secrets*.yaml
+
+# Block everything inside secrets directories by default
+**/secrets/*
+# Exceptions: Allow kustomization and sealed variants
+!**/secrets/kustomization.yaml
+!**/secrets/*-sealed.yaml
 
 # Terraform
 .terraform/
