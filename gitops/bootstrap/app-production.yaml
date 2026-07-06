@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stack-production
+  namespace: gitops-system
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/YOUR_GIT_USERNAME/homelab.git' # CHANGE ME
+    targetRevision: master
+    path: gitops/apps/environments/production
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: production
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

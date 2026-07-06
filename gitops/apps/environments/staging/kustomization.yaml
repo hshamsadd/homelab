@@ -1,0 +1,40 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# 1. Automatically wrap all resources in a safe testing namespace
+namespace: staging
+
+resources:
+  # 2. Create the namespace itself
+  - namespace.yaml
+
+  # 3. Pull the exact same application blueprints used in production
+  - ../../base/minio
+  - ../../base/pgadmin
+  - ../../base/redis
+  - ../../base/wallabag
+  # - ../base/cloudnative-pg
+
+  # 4. Call in the staging Kubernetes secrets
+  - ./secrets
+
+  # 5. Call in specific resources
+  - ./patches/cloudnative-pg/barman-objectstore.yaml
+  - ./patches/cloudnative-pg/central-postgres.yaml
+  - ./patches/cloudnative-pg/production-backups-store.yaml
+
+patches:
+  # 6. Apply all staging modifications over the base
+  - path: ./patches/minio/minio-staging-patch.yaml
+  - path: ./patches/minio/minio-ingress-patch.yaml
+  - path: ./patches/minio/minio-pvc-patch.yaml
+  - path: ./patches/pgadmin/pgadmin-ingress-patch.yaml
+  - path: ./patches/wallabag/wallabag-env.yaml
+  - path: ./patches/wallabag/wallabag-ingress.yaml
+  # ------------------------------- #
+  # - path: cloudnative-pg/disable-wal-archiver.yaml
+  #   target:
+  #     group: postgresql.cnpg.io
+  #     version: v1
+  #     kind: Cluster
+  #     name: central-postgres

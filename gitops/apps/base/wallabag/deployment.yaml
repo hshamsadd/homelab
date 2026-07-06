@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallabag
+  labels:
+    app: wallabag
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: wallabag
+  template:
+    metadata:
+      labels:
+        app: wallabag
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: server
+      containers:
+        - name: wallabag
+          image: wallabag/wallabag:latest
+          ports:
+            - containerPort: 80
+          env:
+            - name: SYMFONY__ENV__DATABASE_DRIVER
+              value: pdo_pgsql
+            - name: SYMFONY__ENV__DATABASE_HOST
+              value: central-postgres-rw.production.svc.cluster.local
+            - name: SYMFONY__ENV__DATABASE_PORT
+              value: "5432"
+            - name: SYMFONY__ENV__DATABASE_NAME
+              value: wallabag
+            - name: SYMFONY__ENV__DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-credentials
+                  key: DATABASE_USER
+            - name: SYMFONY__ENV__DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-credentials
+                  key: DATABASE_PASSWORD
+            - name: SYMFONY__ENV__DOMAIN_NAME
+              value: http://wallabag.home
+            - name: SYMFONY__ENV__DATABASE_CHARSET
+              value: utf8
+            - name: SYMFONY__ENV__FOSUSER_REGISTRATION
+              value: "false"
+            - name: SYMFONY__ENV__REDIS_HOST
+              value: redis.production.svc.cluster.local
+            - name: SYMFONY__ENV__REDIS_PORT
+              value: "6379"
