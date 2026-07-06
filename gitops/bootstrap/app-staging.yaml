@@ -9,6 +9,9 @@ spec:
     repoURL: 'https://github.com/hshamsadd/homelab.git'
     targetRevision: main
     path: gitops/apps/environments/staging
+    # Explicitly force Kustomize to prevent Helm auto-detection
+    plugin:
+      name: kustomize
   destination:
     server: 'https://kubernetes.default.svc'
     namespace: staging
