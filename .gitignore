@@ -1,0 +1,38 @@
+# Secrets
+.env
+.env.*
+*.key
+*.pem
+*.crt
+*.p12
+*.kubeconfig
+kubeconfig
+secrets/
+**/secrets/
+**/*secret*.yaml
+**/*secrets*.yaml
+
+# Terraform
+.terraform/
+*.tfstate
+*.tfstate.*
+.terraform.lock.hcl
+
+# Ansible
+*.retry
+.vault_pass
+vault-password.txt
+
+# Kubernetes generated files
+*.tmp
+*.bak
+*.swp
+
+# Editor/OS
+.vscode/
+.idea/
+.DS_Store
+
+# Logs
+*.log
+logs/

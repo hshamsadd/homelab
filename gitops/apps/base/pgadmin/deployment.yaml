@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: pgadmin
+  #namespace: production
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: pgadmin
+  template:
+    metadata:
+      labels:
+        app: pgadmin
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: server
+      containers:
+        - name: pgadmin
+          image: dpage/pgadmin4:8.14
+          ports:
+            - containerPort: 80
+          envFrom:
+            - secretRef:
+                name: pgadmin-credentials
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: pgadmin
+  #namespace: production
+spec:
+  selector:
+    app: pgadmin
+  ports:
+    - port: 80
+      targetPort: 80

@@ -1,0 +1,18 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: stack-staging
+  namespace: gitops-system
+spec:
+  project: default
+  source:
+    repoURL: 'https://github.com/YOUR_GIT_USERNAME/homelab.git' # CHANGE ME
+    targetRevision: master
+    path: gitops/apps/environments/staging
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

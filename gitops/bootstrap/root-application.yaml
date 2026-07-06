@@ -1,0 +1,23 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root-bootstrap
+  namespace: gitops-system
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    # CHANGE THIS to your actual remote homelab git repository URL
+    repoURL: 'https://github.com/YOUR_GIT_USERNAME/homelab.git'
+    targetRevision: master
+    path: gitops/bootstrap
+  destination:
+    server: 'https://kubernetes.default.svc'
+    namespace: gitops-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true

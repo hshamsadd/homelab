@@ -1,0 +1,23 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: minio-console-ingress
+  annotations:
+    cert-manager.io/cluster-issuer: "local-homelab-issuer"
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - minio.home
+      secretName: minio-console-tls-cert
+  rules:
+    - host: minio.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: minio
+                port:
+                  number: 9001

@@ -1,0 +1,28 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+# 1. Automatically forces all resources below into the production namespace
+namespace: production
+
+resources:
+  # 2. Create the namespace itself
+  - namespace.yaml
+
+  # 3. Call in the base apps (fixed paths to match your pristine gitops/apps/base structure)
+  - ../../base/cloudnative-pg
+  - ../../base/minio
+  - ../../base/pgadmin
+  - ../../base/redis
+  - ../../base/wallabag
+
+  # 4. Call in the production Kubernetes secrets
+  - ./secrets
+
+  # 5. Call in and append production-specific objects (Jobs, Backups)
+  - ./patches/minio/minio-local-pv.yaml
+  - ./patches/cloudnative-pg/barman-objectstore.yaml
+  - ./patches/cloudnative-pg/manual-backup.yaml
+  - ./patches/cloudnative-pg/scheduled-backup.yaml
+  - ./patches/minio/minio-bucket-job.yaml
+
+patches: []
