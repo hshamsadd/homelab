@@ -1,0 +1,51 @@
+name: CI - Kustomize Dry Run Validate
+
+on:
+  push:
+    branches:
+      - backup-3
+    paths:
+      - 'gitops/**'
+
+jobs:
+  validate-kustomize:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Kustomize
+        uses: imranismail/setup-kustomize@v2
+        with:
+          kustomize-version: "5.0.0"
+
+      - name: Run Kustomize Build on all targets
+        run: |
+          echo "🔍 Scanning for kustomization.yaml files..."
+
+          # Find all directories containing a kustomization.yaml file
+          TARGETS=$(find gitops -name 'kustomization.yaml' -exec dirname {} \;)
+
+          FAIL_COUNT=0
+
+          for TARGET in $TARGETS; do
+            echo "----------------------------------------"
+            echo "🔨 Building Kustomize target: $TARGET"
+            
+            # Run kustomize build and pipe output to null, we only care about exit codes
+            if kustomize build "$TARGET" > /dev/null; then
+              echo "✅ Success: $TARGET"
+            else
+              echo "❌ Failed: $TARGET"
+              FAIL_COUNT=$((FAIL_COUNT + 1))
+            fi
+          done
+
+          echo "----------------------------------------"
+          if [ $FAIL_COUNT -ne 0 ]; then
+            echo "🚨 Pipeline failed! $FAIL_COUNT Kustomize targets have errors."
+            exit 1
+          else
+            echo "🎉 All Kustomize targets built successfully!"
+            exit 0
+          fi
