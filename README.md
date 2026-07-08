@@ -1,4 +1,4 @@
-# 🚀 Enterprise Kubernetes GitOps Platform
+# 🚀 Enterprise Kubernetes GitOps Platformm
 
 [![GitOps: ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-cb4b16?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
 [![Secret Management: SealedSecrets](https://img.shields.io/badge/Security-SealedSecrets-blue?style=flat-square)](#)
