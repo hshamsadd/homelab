@@ -1,0 +1,239 @@
+- name: Install and configure K3s agent and Tailscale on the VM
+  hosts: all
+  become: true
+  gather_facts: false
+
+  vars:
+    tailscale_auth_key: >-
+      {{
+        lookup('env', 'TAILSCALE_AUTH_KEY')
+        | default(vault_tailscale_auth_key | default(''), true)
+      }}
+
+    k3s_agent_token: >-
+      {{
+        lookup('env', 'K3S_AGENT_TOKEN')
+        | default(vault_k3s_agent_token | default(''), true)
+      }}
+
+    k3s_control_plane_host: "100.76.59.49"
+    k3s_control_plane_user: "zshamsadd"
+    k3s_server_url: "https://100.76.59.49:6443"
+
+    # ENTERPRISE BEST PRACTICE: Fallback to the dedicated pipeline key path
+    bastion_ssh_key: "/home/runner/.ssh/id_ed25519_github_actions"
+
+    k3s_node_name: "worker-3"
+    k3s_version: "v1.35.5+k3s1"
+
+  pre_tasks:
+    - name: Wait for VM to be reachable through SSH bastion
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+        sleep: 5
+
+    - name: Ensure required secrets were supplied
+      ansible.builtin.assert:
+        that:
+          - tailscale_auth_key | length > 0
+          - k3s_agent_token | length > 0
+        fail_msg: >-
+          TAILSCALE_AUTH_KEY and K3S_AGENT_TOKEN must be supplied through environment variables or Ansible Vault.
+      no_log: true
+
+  tasks:
+    - name: Gather system facts
+      ansible.builtin.setup:
+
+
+    - name: Confirm VM connection
+      ansible.builtin.debug:
+        msg: "Successfully connected to {{ inventory_hostname }}"
+
+    - name: Install required packages
+      ansible.builtin.apt:
+        name:
+          - curl
+          - ca-certificates
+        state: present
+        update_cache: true
+
+    - name: Check whether Tailscale is installed
+      ansible.builtin.command:
+        cmd: tailscale version
+      register: tailscale_installed
+      changed_when: false
+      failed_when: false
+
+    - name: Install Tailscale
+      ansible.builtin.shell:
+        cmd: curl -fsSL https://tailscale.com/install.sh | sh
+      when: tailscale_installed.rc != 0
+
+    - name: Check whether Tailscale is already connected
+      ansible.builtin.command:
+        cmd: tailscale ip -4
+      register: tailscale_connection
+      changed_when: false
+      failed_when: false
+
+    - name: Connect VM to Tailscale
+      ansible.builtin.command:
+        argv:
+          - tailscale
+          - up
+          - "--auth-key={{ tailscale_auth_key }}"
+          - "--hostname={{ inventory_hostname }}"
+      when: tailscale_connection.rc != 0
+      no_log: true
+
+    - name: Get VM Tailscale IPv4 address
+      ansible.builtin.command:
+        cmd: tailscale ip -4
+      register: tailscale_ip
+      changed_when: false
+
+    - name: Check whether K3s agent service is active
+      ansible.builtin.command:
+        cmd: systemctl is-active k3s-agent
+      register: k3s_agent_active
+      changed_when: false
+      failed_when: false
+
+    - name: Check whether K3s uninstall script exists
+      ansible.builtin.stat:
+        path: /usr/local/bin/k3s-agent-uninstall.sh
+      register: k3s_uninstall_script
+
+    - name: Prepare and install K3s agent
+      when: k3s_agent_active.rc != 0
+      block:
+        - name: Delete stale worker node from Kubernetes
+          ansible.builtin.command:
+            argv:
+              - ssh
+              - -i
+              - "{{ bastion_ssh_key }}"
+              #- "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
+              - -o
+              - StrictHostKeyChecking=no
+              - -o
+              - UserKnownHostsFile=/dev/null
+              - "{{ k3s_control_plane_user }}@{{ k3s_control_plane_host }}"
+              - "kubectl delete node {{ k3s_node_name }} --ignore-not-found"
+          delegate_to: localhost
+          become: false
+          register: stale_node_deletion
+          changed_when: "'deleted' in stale_node_deletion.stdout"
+
+        - name: Remove incomplete K3s agent installation
+          ansible.builtin.command:
+            cmd: /usr/local/bin/k3s-agent-uninstall.sh
+          when: k3s_uninstall_script.stat.exists
+
+        - name: Install and join K3s agent
+          ansible.builtin.shell:
+            cmd: |
+              curl -sfL https://get.k3s.io | \
+              INSTALL_K3S_VERSION="{{ k3s_version }}" \
+              K3S_URL="{{ k3s_server_url }}" \
+              K3S_TOKEN="{{ k3s_agent_token }}" \
+              INSTALL_K3S_EXEC="agent --node-name={{ k3s_node_name }} --node-ip={{ tailscale_ip.stdout | trim }} --flannel-iface=tailscale0" \
+              sh -
+          no_log: true
+
+      rescue:
+        - name: Read K3s agent service status
+          ansible.builtin.command:
+            cmd: systemctl status k3s-agent --no-pager -l
+          register: k3s_service_status
+          changed_when: false
+          failed_when: false
+
+        - name: Read K3s agent journal
+          ansible.builtin.command:
+            cmd: journalctl -u k3s-agent -n 100 --no-pager
+          register: k3s_service_journal
+          changed_when: false
+          failed_when: false
+
+        - name: Display K3s service status
+          ansible.builtin.debug:
+            var: k3s_service_status.stdout_lines
+
+        - name: Display K3s agent journal
+          ansible.builtin.debug:
+            var: k3s_service_journal.stdout_lines
+
+        - name: Stop because K3s installation failed
+          ansible.builtin.fail:
+            msg: "K3s agent installation failed. Review the service logs above."
+
+    - name: Ensure K3s agent is enabled and running
+      ansible.builtin.systemd:
+        name: k3s-agent
+        enabled: true
+        state: started
+        daemon_reload: true
+
+    - name: Wait for worker node to register in Kubernetes
+      ansible.builtin.command:
+        argv:
+          - ssh
+          - -i
+          - "{{ bastion_ssh_key }}"
+          #- "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
+          - -o
+          - StrictHostKeyChecking=no
+          - -o
+          - UserKnownHostsFile=/dev/null
+          - "{{ k3s_control_plane_user }}@{{ k3s_control_plane_host }}"
+          - "kubectl get node {{ k3s_node_name }}"
+      delegate_to: localhost
+      become: false
+      register: worker_registration
+      changed_when: false
+      retries: 30
+      delay: 5
+      until: worker_registration.rc == 0
+
+    - name: Assign worker role to Kubernetes node
+      ansible.builtin.command:
+        argv:
+          - ssh
+          - -i
+          - "{{ bastion_ssh_key }}"
+          #- "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
+          - -o
+          - StrictHostKeyChecking=no
+          - -o
+          - UserKnownHostsFile=/dev/null
+          - "{{ k3s_control_plane_user }}@{{ k3s_control_plane_host }}"
+          - "kubectl label node {{ k3s_node_name }} node-role.kubernetes.io/worker=worker --overwrite"
+      delegate_to: localhost
+      become: false
+      register: worker_role
+      changed_when: "'not labeled' not in worker_role.stdout"
+
+    - name: Wait for worker node to become Ready
+      ansible.builtin.command:
+        argv:
+          - ssh
+          - -i
+          - "{{ bastion_ssh_key }}"
+          #- "{{ hostvars[inventory_hostname].ansible_ssh_private_key_file }}"
+          - -o
+          - StrictHostKeyChecking=no
+          - -o
+          - UserKnownHostsFile=/dev/null
+          - "{{ k3s_control_plane_user }}@{{ k3s_control_plane_host }}"
+          - "kubectl wait --for=condition=Ready node/{{ k3s_node_name }} --timeout=300s"
+      delegate_to: localhost
+      become: false
+      register: worker_ready
+      changed_when: false
+
+    - name: Show worker information
+      ansible.builtin.debug:
+        msg: >-
+          {{ k3s_node_name }} joined Kubernetes through Tailscale address {{ tailscale_ip.stdout | trim }}

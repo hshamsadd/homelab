@@ -10,6 +10,12 @@ resource "kubernetes_namespace" "env" {
       "network/mesh-enabled"     = "tailscale"
     }
   }
+  # Add this block to ignore ArgoCD's tracking annotations
+  lifecycle {
+    ignore_changes = [
+      metadata[0].annotations["argocd.argoproj.io/tracking-id"]
+    ]
+  }
 }
 
 # Senior Resource Guardrails: Limit staging resource footprint to protect prod database workers

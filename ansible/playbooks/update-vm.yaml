@@ -1,0 +1,83 @@
+- name: Test VM connection and sudo privileges
+  hosts: all
+  become: true
+  gather_facts: false
+
+  pre_tasks:
+    - name: Wait for VM SSH connection
+      ansible.builtin.wait_for_connection:
+        timeout: 300
+        sleep: 5
+
+  tasks:
+    - name: Gather system facts
+      ansible.builtin.setup:
+
+
+    - name: Confirm VM connection
+      ansible.builtin.debug:
+        msg: "Successfully connected to {{ inventory_hostname }} with user {{ ansible_user | default('default') }}"
+
+    # - name: Update APT package cache
+    #   ansible.builtin.apt:
+    #     update_cache: true
+    #     cache_valid_time: 3600
+
+    - name: Update and populate required system packages
+      ansible.builtin.apt:
+        name:
+          - htop
+          - curl
+          - ca-certificates
+        state: present
+        update_cache: true
+        cache_valid_time: 3600 # Speeds up execution by skipping updates if run within the hour
+
+    - name: Create test file with root ownership
+      ansible.builtin.copy:
+        content: |
+          VM configuration completed successfully by Ansible.
+          Timestamp: {{ ansible_date_time.iso8601 }}
+        dest: /root/ci_cd_success.txt
+        owner: root
+        group: root
+        mode: "0644"
+
+    - name: Confirm sudo test file exists
+      ansible.builtin.stat:
+        path: /root/ci_cd_success.txt
+      register: sudo_test_file
+
+    - name: Display deployment lifecycle test result
+      ansible.builtin.debug:
+        msg: "Connection and sudo test succeeded. Test file verification state: {{ sudo_test_file.stat.exists }}"
+
+# - name: Test VM connection and sudo privileges
+#   hosts: all
+#   become: true
+#   gather_facts: false
+
+#   tasks:
+#     - name: Gather system facts
+#       ansible.builtin.setup:
+
+
+#     - name: Confirm VM connection
+#       ansible.builtin.debug:
+#         msg: "Successfully connected to {{ inventory_hostname }}"
+
+#     - name: Install a small package (Proof of Sudo)
+#       apt:
+#         name:
+#           - htop
+#           - apt-get update && apt-get install -y curl apt-transport-https
+#         state: present
+#         update_cache: yes
+
+#     - name: Create a test file with root ownership
+#       file:
+#         path: /root/ci_cd_success.txt
+#         state: touch
+#         owner: root
+#         group: root
+#         mode: "0644"
