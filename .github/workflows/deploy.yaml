@@ -1,0 +1,205 @@
+# name: "Terraform + Ansible CI/CD"
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       id-token: write # Mandatory for AWS OIDC authentication
+
+#     env:
+#       TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       # =========================================================
+#       # 1️⃣ STEP 1: AUTHENTICATE TO AWS VIA OIDC FIRST
+#       # =========================================================
+#       - name: Authenticate Runner to AWS via OIDC
+#         uses: aws-actions/configure-aws-credentials@v3
+#         with:
+#           role-to-assume: arn:aws:iam::759601070365:role/github-actions-ansible-role
+#           aws-region: eu-central-1
+#           audience: sts.amazonaws.com
+
+#       # =========================================================
+#       # 2️⃣ STEP 2: FETCH CENTRALIZED SECRETS INTO RUNNER MEMORY
+#       # =========================================================
+#       - name: Fetch Dynamic Runtime Secrets from AWS
+#         uses: aws-actions/aws-secretsmanager-get-secrets@v2
+#         with:
+#           secret-ids: |
+#             SECRETS,production/cluster/ansible-secrets
+#             parse-json-secrets: true
+
+#       # =========================================================
+#       # 3️⃣ STEP 3: CONNECT TO TAILSCALE USING FETCHED AWS SECRETS
+#       # =========================================================
+#       - name: Tailscale
+#         uses: tailscale/github-action@v2
+#         with:
+#           # Now these variables are populated dynamically from AWS!
+#           oauth-client-id: ${{ env.SECRETS_TS_OAUTH_CLIENT_ID }}
+#           oauth-secret: ${{ env.SECRETS_TS_OAUTH_SECRET }}
+#           tags: tag:ci
+#           args: --accept-routes
+
+#       # =========================================================
+#       # 4️⃣ STEP 4: GENERATE THE SSH PRIVATE KEY FILE FOR TERRAFORM
+#       # =========================================================
+#       - name: Setup SSH
+#         run: |
+#           mkdir -p /home/runner/.ssh
+
+#           # Write raw un-encoded key fetched from AWS Secrets Manager
+#           echo "${{ env.SECRETS_GITHUB_VM_SSH_KEY }}" > /home/runner/.ssh/id_ed25519_github_actions
+
+#           chmod 600 /home/runner/.ssh/id_ed25519_github_actions
+#           ls -l /home/runner/.ssh/id_ed25519_github_actions
+
+#           # Pull host fingerprint over the established Tailscale tunnel
+#           ssh-keyscan -H 100.76.59.49 >> /home/runner/.ssh/known_hosts
+
+#       # =========================================================
+#       # 5️⃣ STEP 5: PROVISION INFRASTRUCTURE VIA HCP TERRAFORM
+#       # =========================================================
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#           terraform_wrapper: false
+
+#       - name: Terraform Init & Apply
+#         working-directory: terraform
+#         env:
+#           TF_VAR_ssh_private_key_path: "/home/runner/.ssh/id_ed25519_github_actions"
+#         run: |
+#           terraform init
+#           terraform apply -auto-approve
+
+#       # =========================================================
+#       # 6️⃣ STEP 6: CONFIGURE IMMUTABLE SYSTEMS VIA ANSIBLE
+#       # =========================================================
+#       - name: Run Ansible Playbooks
+#         env:
+#           ANSIBLE_HOST_KEY_CHECKING: "False"
+#           # Maps secrets fetched from AWS to the exact env handles your playbooks use
+#           TAILSCALE_AUTH_KEY: ${{ env.SECRETS_TAILSCALE_AUTH_KEY }}
+#           K3S_AGENT_TOKEN: ${{ env.SECRETS_K3S_AGENT_TOKEN }}
+#         run: |+
+#           ansible-playbook \
+#             -i ansible/inventory.json \
+#             ansible/playbooks/update-vm.yml
+
+#           ansible-playbook \
+#             -i ansible/inventory.json \
+#             ansible/playbooks/tailscale-k3s.yml
+
+#### --------------------------------------------------------------------------------- ####      
+# name: Terraform + Ansible CI/CD
+
+# on:
+#   push:
+#     branches: [ main ]
+
+# jobs:
+#   deploy:
+#     runs-on: ubuntu-latest
+#     permissions:
+#       contents: read
+#       id-token: write
+
+#     env:
+#       TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       # =========================================================
+#       # PHASE 1: AWS CENTRAL OIDC AUTH & VAULT EXTRACTION
+#       # =========================================================
+#       - name: Authenticate Runner to AWS via OIDC
+#         uses: aws-actions/configure-aws-credentials@v3
+#         with:
+#           role-to-assume: arn:aws:iam::759601070365:role/github-actions-ansible-role
+#           aws-region: eu-central-1 # Points to your Frankfurt Vault data center
+#           audience: sts.amazonaws.com
+
+#       - name: Fetch Dynamic Runtime Secrets from AWS
+#         uses: aws-actions/aws-secretsmanager-get-secrets@v2
+#         with:
+#           secret-ids: |
+#             SECRETS,production/cluster/ansible-secrets
+
+#       # =========================================================
+#       # PHASE 2: CONNECT SECURE PRIVATE TAILSCALE MESH
+#       # =========================================================
+#       - name: Tailscale Connection Bootstrapper
+#         uses: tailscale/github-action@v2
+#         with:
+#           ## Automatically uses keys extracted from your AWS Secrets Manager pool
+#           oauth-client-id: ${{ env.SECRETS_TS_OAUTH_CLIENT_ID }}
+#           oauth-secret: ${{ env.SECRETS_TS_OAUTH_SECRET }}
+#           tags: tag:ci
+#           args: --accept-routes
+
+#       # ========================================================= //
+#       # PHASE 3: POPULATE SECURE SSH AGENT KEYRING
+#       # =========================================================          
+#       - name: Setup Runner Cryptographic Key Files
+#         run: |
+#           mkdir -p /home/runner/.ssh
+
+#           # Extracts your raw multi-line key directly from AWS memory space
+#           # Note: No base64 decoding needed because you stored the raw key blocks
+#           echo "${{ env.SECRETS_GITHUB_VM_SSH_KEY }}" | base64 -d > /home/runner/.ssh/id_ed25519_github_actions
+
+#           # Apply tight file locks required by the OpenSSH validation suite
+#           chmod 600 /home/runner/.ssh/id_ed25519_github_actions
+#           ls -l /home/runner/.ssh/id_ed25519_github_actions
+
+#           # Populates known_hosts via your Tailscale overlay IP to eliminate prompts
+#           ssh-keyscan -H 100.76.59.49 >> /home/runner/.ssh/known_hosts
+
+#       # =========================================================
+#       # PHASE 4: REMOTE IAC PROVISIONING VIA HCP TERRAFORM
+#       # =========================================================
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN}}
+#           terraform_wrapper: false
+
+#       - name: Terraform Init & Apply
+#         working-directory: terraform
+#         env:
+#           # Maps your newly generated file path directly into your infrastructure vars
+#           TF_VAR_ssh_private_key_path: "/home/runner/.ssh/id_ed25519_github_actions"
+#         run: |
+#           terraform init
+#           terraform apply -auto-approve
+
+#       # =========================================================
+#       # PHASE 5: SOFTWARE CONFIGURATION MANAGEMENT VIA ANSIBLE
+#       # =========================================================
+#       - name: Run Ansible Playbooks
+#         env:
+#           ANSIBLE_HOST_KEY_CHECKING: "False"
+#           # Feeds your custom playbook env lookups with your AWS secret tokens
+#           TAILSCALE_AUTH_KEY: ${{ env.SECRETS_TAILSCALE_AUTH_KEY }}
+#           K3S_AGENT_TOKEN: ${{ env.SECRETS_K3S_AGENT_TOKEN }}
+#         run: |
+#           ansible-playbook \
+#             -i ansible/inventory.json \
+#             ansible/playbooks/update-vm.yaml
+
+#           ansible-playbook \
+#             -i ansible/inventory.json \
+#             ansible/playbooks/tailscale-k3s.yaml

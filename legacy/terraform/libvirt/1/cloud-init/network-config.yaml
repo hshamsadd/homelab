@@ -1,0 +1,9 @@
+# network-config section for cloud-init (network-config.yaml)
+version: 2
+ethernets:
+  eth0:
+    match:
+      macaddress: "${vm_mac}"
+    set-name: eth0
+    dhcp4: true
+    mtu: 1280
