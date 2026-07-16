@@ -13,6 +13,14 @@ spec:
     limits:
       memory: "1Gi"
       cpu: "1"
+      
+  rawResources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"    
 
   storage:
     size: 15Gi
