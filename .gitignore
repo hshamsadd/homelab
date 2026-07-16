@@ -139,7 +139,6 @@ ansible/terraform_vm_key.pub
 ansible/inventory.json
 terraform.tfstate.backup
 .terraform/
-.terraform.lock.hcl
 .md
 .tfvars
 
