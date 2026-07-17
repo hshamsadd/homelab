@@ -11,13 +11,12 @@ on:
         options:
           - plan
           - apply
-
-  # Temporary trigger for testing this workflow from backup-4....
-  push:
-    branches:
-      - backup-4
-    paths:
-      - ".github/workflows/libvirt-local.yml"
+  # # Temporary trigger for testing this workflow from backup-4....
+  # push:
+  #   branches:
+  #     - backup-4
+  #   paths:
+  #     - ".github/workflows/libvirt-local.yml"
 
 permissions:
   contents: read
