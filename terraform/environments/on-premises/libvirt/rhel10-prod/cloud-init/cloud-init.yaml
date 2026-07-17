@@ -1,19 +1,45 @@
 #cloud-config
+
 hostname: ${vm_hostname}
-
-ssh_pwauth: true
-
-chpasswd:
-  list: |
-    root:password
-    ${vm_user}:terraform
-  expire: false
+manage_etc_hosts: true
+ssh_pwauth: false
+disable_root: true
 
 users:
   - name: ${vm_user}
-    groups: sudo
+    groups:
+      - adm
+      - sudo
     shell: /bin/bash
-    sudo: ALL=(ALL) NOPASSWD:ALL
-    lock_passwd: false
-    ssh_authorized_keys:
-      - ${public_key}
+    lock_passwd: true
+    sudo: "ALL=(ALL) NOPASSWD:ALL"
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - ca-certificates
+  - curl
+  - python3
+  - qemu-guest-agent
+
+write_files:
+  - path: /etc/ssh/vault-user-ca.pub
+    owner: root:root
+    permissions: "0644"
+    content: |
+      ${ssh_ca_public_key}
+
+  - path: /etc/ssh/sshd_config.d/90-vault-user-ca.conf
+    owner: root:root
+    permissions: "0644"
+    content: |
+      TrustedUserCAKeys /etc/ssh/vault-user-ca.pub
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+      PermitRootLogin no
+
+runcmd:
+  - [ systemctl, enable, --now, qemu-guest-agent ]
+  - [ /usr/sbin/sshd, -t ]
+  - [ systemctl, restart, ssh ]

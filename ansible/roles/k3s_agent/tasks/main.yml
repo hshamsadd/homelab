@@ -1,0 +1,40 @@
+---
+- name: Verify a K3s bootstrap token was supplied
+  ansible.builtin.assert:
+    that:
+      - k3s_join_token | length > 0
+    fail_msg: K3S_JOIN_TOKEN was not supplied by the provisioning workflow.
+  no_log: true
+
+- name: Check whether K3s agent is already installed
+  ansible.builtin.stat:
+    path: /etc/systemd/system/k3s-agent.service
+  register: k3s_agent_service
+
+- name: Download the official K3s installation script
+  ansible.builtin.get_url:
+    url: https://get.k3s.io
+    dest: /usr/local/src/install-k3s.sh
+    owner: root
+    group: root
+    mode: "0755"
+  when: not k3s_agent_service.stat.exists
+
+- name: Install and join the K3s agent
+  ansible.builtin.command:
+    cmd: /usr/local/src/install-k3s.sh
+  environment:
+    INSTALL_K3S_VERSION: "{{ k3s_version }}"
+    K3S_URL: "{{ k3s_server_url }}"
+    K3S_TOKEN: "{{ k3s_join_token }}"
+    INSTALL_K3S_EXEC: >-
+      agent --node-name={{ k3s_node_name }} --node-ip={{ tailscale_ipv4 }} --flannel-iface=tailscale0
+  when: not k3s_agent_service.stat.exists
+  no_log: true
+
+- name: Ensure the K3s agent is enabled and running
+  ansible.builtin.systemd:
+    name: k3s-agent
+    enabled: true
+    state: started
+    daemon_reload: true

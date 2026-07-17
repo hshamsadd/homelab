@@ -1,0 +1,86 @@
+name: AWS Foundation
+
+on:
+  workflow_dispatch:
+    inputs:
+      operation:
+        description: Terraform operation
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - apply
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: aws-foundation-prod
+  cancel-in-progress: false
+
+jobs:
+  terraform:
+    name: AWS Terraform through HCP
+    environment: homelab-production
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+
+    env:
+      TF_ROOT: terraform/environments/cloud/aws/foundation-prod
+      TF_IN_AUTOMATION: "true"
+      VAULT_ADDR: https://debian.tailfb03f6.ts.net:8200
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Connect GitHub runner to Tailscale
+        uses: tailscale/github-action@v4.1.3
+        with:
+          oauth-client-id: ${{ vars.TS_WIF_CLIENT_ID }}
+          audience: ${{ vars.TS_WIF_AUDIENCE }}
+          tags: tag:ci
+          ping: debian.tailfb03f6.ts.net
+
+      - name: Authenticate to Vault
+        uses: hashicorp/vault-action@v4.0.0
+        with:
+          url: https://debian.tailfb03f6.ts.net:8200
+          method: jwt
+          path: github-actions
+          role: aws-foundation-prod-remote
+          jwtGithubAudience: vault://homelab
+          secrets: |
+            kv/data/platforms/hcp-terraform/ci token | TF_TOKEN_app_terraform_io
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v4.0.0
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+
+      - name: Terraform format check
+        shell: bash
+        run: terraform -chdir="$TF_ROOT" fmt -check -recursive
+
+      - name: Terraform initialize
+        shell: bash
+        run: terraform -chdir="$TF_ROOT" init -input=false
+
+      - name: Terraform validate
+        shell: bash
+        run: terraform -chdir="$TF_ROOT" validate
+
+      - name: Terraform remote plan
+        if: inputs.operation == 'plan'
+        shell: bash
+        run: terraform -chdir="$TF_ROOT" plan -input=false
+
+      - name: Terraform remote apply
+        if: inputs.operation == 'apply'
+        shell: bash
+        run: terraform -chdir="$TF_ROOT" apply -input=false -auto-approve
