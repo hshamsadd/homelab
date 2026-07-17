@@ -97,6 +97,7 @@ resource "libvirt_cloudinit_disk" "vm_init" {
     {
       vm_hostname       = var.vm_hostname
       vm_user           = var.vm_user
+      vm_mac            = var.vm_mac
       ssh_ca_public_key = file("${path.module}/cloud-init/vault-ssh-user-ca.pub")
     }
   )
@@ -108,12 +109,12 @@ resource "libvirt_cloudinit_disk" "vm_init" {
     }
   )
 
-  network_config = templatefile(
-    "${path.module}/cloud-init/network-config.yaml",
-    {
-      vm_mac = var.vm_mac
-    }
-  )
+  # network_config = templatefile(
+  #   "${path.module}/cloud-init/network-config.yaml",
+  #   {
+  #     vm_mac = var.vm_mac
+  #   }
+  # )
 }
 
 resource "libvirt_volume" "vm_cloudinit" {
