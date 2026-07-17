@@ -1,0 +1,34 @@
+---
+- name: Configure the libvirt K3s worker
+  hosts: libvirt_workers
+  become: true
+  gather_facts: true
+
+  vars:
+    tailscale_auth_key: "{{ lookup('env', 'TAILSCALE_AUTH_KEY') }}"
+    k3s_join_token: "{{ lookup('env', 'K3S_JOIN_TOKEN') }}"
+    k3s_node_name: "{{ lookup('env', 'K3S_NODE_NAME') }}"
+    k3s_server_url: "https://100.76.59.49:6443"
+    k3s_version: "v1.35.5+k3s1"
+
+  pre_tasks:
+    - name: Verify runtime values
+      ansible.builtin.assert:
+        that:
+          - tailscale_auth_key | length > 0
+          - k3s_join_token | length > 0
+          - k3s_node_name | length > 0
+        fail_msg: Required CI runtime values were not supplied.
+      no_log: true
+
+  roles:
+    - common
+    - tailscale
+    - k3s_agent
+
+  post_tasks:
+    - name: Show configured node information
+      ansible.builtin.debug:
+        msg: >-
+          {{ k3s_node_name }} is configured with Tailscale address
+          {{ tailscale_ipv4 }} and the K3s agent enabled.

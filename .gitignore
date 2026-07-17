@@ -187,3 +187,6 @@ tmp-secrets/
 !*.tfvars.example
 
 # END HOMELAB GENERATED FILES
+
+# Runtime-generated Ansible inventory
+/ansible/inventory.json
