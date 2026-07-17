@@ -12,7 +12,7 @@ on:
           - plan
           - apply
 
-  # Temporary trigger for testing this workflow from backup-4.
+  # Temporary trigger for testing this workflow from backup-4..
   push:
     branches:
       - backup-4
