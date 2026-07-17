@@ -7,5 +7,5 @@ variable "kube_api_endpoint" {
 variable "environments" {
   type        = list(string)
   description = "Target deployment namespaces to initialize inside the cluster mesh."
-  default     = ["staging", "production", "gitops-system", "monitoring"]
+  default     = ["dev", "staging", "testing", "production", "monitoring", "gitops-system"]
 }

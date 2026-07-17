@@ -1,6 +1,7 @@
 # Secrets
 .env
 .env.*
+.env.*.local
 *.key
 *.pem
 *.crt
@@ -18,7 +19,6 @@ kubeconfig
 .terraform/
 *.tfstate
 *.tfstate.*
-.terraform.lock.hcl
 
 # Ansible
 *.retry
@@ -30,11 +30,163 @@ vault-password.txt
 *.bak
 *.swp
 
+# Node modules
+node_modules/
+
+# Build / output
+dist/
+build/
+
+# Test coverage
+coverage/
+.nyc_output/
+
 # Editor/OS
 .vscode/
 .idea/
 .DS_Store
+Thumbs.db
+*.swp
+*.tmp
 
 # Logs
-*.log
 logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+terraform.tfstate*
+ssh/
+/.ssh
+
+# SSH keys and generated Ansible files
+ssh/
+*.pem
+ansible/terraform_vm_key.pem
+ansible/terraform_vm_key.pub
+ansible/inventory.json
+
+# Terraform working directories
+.terraform/
+**/.terraform/*
+
+# Terraform state files
+*.tfstate
+*.tfstate.*
+terraform.tfstate.backup
+
+# Local environment-specific variable files
+local.auto.tfvars
+*.auto.tfvars
+*.auto.tfvars.json
+vault.yaml
+# Terraform plans and crash logs
+*.tfplan
+crash.log
+crash.*.log
+
+
+=====
+# BEGIN HOMELAB GENERATED FILES
+
+# Terraform runtime
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Terraform secret inputs
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+*.secret.tfvars
+
+# Credentials and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.kubeconfig
+credentials.tfrc.json
+.terraformrc
+.vault-token
+
+# Application dependencies
+node_modules/
+vendor/
+
+# Temporary secrets
+.secrets/
+tmp-secrets/
+.env
+.env.*
+
+# Keep examples
+!.env.example
+!*.tfvars.example
+
+
+===
+
+ssh/
+*.pem
+ansible/terraform_vm_key.pem
+ansible/terraform_vm_key.pub
+ansible/inventory.json
+terraform.tfstate.backup
+.terraform/
+.md
+.tfvars
+
+
+==========
+# BEGIN HOMELAB GENERATED FILES
+
+# Terraform runtime
+**/.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+crash.log
+crash.*.log
+
+# Terraform secret inputs
+terraform.tfvars
+terraform.tfvars.json
+*.auto.tfvars
+*.auto.tfvars.json
+*.secret.tfvars
+
+# Credentials and private keys
+*.pem
+*.key
+*.p12
+*.pfx
+*.kubeconfig
+credentials.tfrc.json
+.terraformrc
+.vault-token
+
+# Application dependencies
+node_modules/
+vendor/
+
+# Temporary secrets
+.secrets/
+tmp-secrets/
+*.secret
+.env
+.env.*
+
+# Keep examples
+!.env.example
+!*.tfvars.example
+
+# END HOMELAB GENERATED FILES
+
+# Runtime-generated Ansible inventory
+/ansible/inventory.json

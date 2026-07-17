@@ -1,0 +1,74 @@
+name: Validate Infrastructure Code
+
+on:
+  push:
+    branches:
+      - "**"
+  pull_request:
+
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    name: Terraform validation
+    runs-on: ubuntu-latest
+
+    strategy:
+      fail-fast: false
+      matrix:
+        root:
+          - terraform/environments/on-premises/libvirt/rhel10-prod
+          - terraform/environments/cloud/aws/foundation-prod
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v4.0.0
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+
+      - name: Terraform format
+        shell: bash
+        run: terraform -chdir="${{ matrix.root }}" fmt -check -recursive
+
+      - name: Terraform initialize without remote state
+        shell: bash
+        run: terraform -chdir="${{ matrix.root }}" init -backend=false -input=false
+
+      - name: Terraform validate
+        shell: bash
+        run: terraform -chdir="${{ matrix.root }}" validate
+
+  ansible:
+    name: Ansible validation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Install Ansible
+        shell: bash
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ansible-core
+
+      - name: Syntax-check libvirt worker playbook
+        shell: bash
+        env:
+          ANSIBLE_CONFIG: ${{ github.workspace }}/ansible/ansible.cfg
+          ANSIBLE_ROLES_PATH: ${{ github.workspace }}/ansible/roles
+        run: |
+          ansible-playbook \
+            -i ansible/inventories/testing/hosts.yml \
+            --syntax-check \
+            ansible/playbooks/configure-libvirt-worker.yml

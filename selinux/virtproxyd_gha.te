@@ -1,0 +1,14 @@
+module virtproxyd_gha 1.0;
+
+require {
+    type virtproxyd_t;
+    type unconfined_service_t;
+
+    class dir search;
+    class file { open read };
+}
+
+# Allow virtproxyd to obtain the process start time of applications
+# launched as unconfined system services, such as the GitHub Actions runner.
+allow virtproxyd_t unconfined_service_t:dir search;
+allow virtproxyd_t unconfined_service_t:file { open read };

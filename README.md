@@ -1,4 +1,4 @@
-# 🚀 Enterprise Kubernetes GitOps Platform
+# 🚀 Enterprise Kubernetes GitOps Platformm
 
 [![GitOps: ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-cb4b16?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
 [![Secret Management: SealedSecrets](https://img.shields.io/badge/Security-SealedSecrets-blue?style=flat-square)](#)
@@ -9,7 +9,7 @@ An enterprise-grade, GitOps-driven Kubernetes platform focusing on **stateful wo
 
 Unlike standard homelabs that stop at deploying stateless web servers, this repository demonstrates how to manage complex stateful data lifecycles, cross-environment database bootstrapping, and secure secret management in a fully declarative way.
 
----
+-------
 
 ## 🏗️ Architecture & Core Philosophy
 

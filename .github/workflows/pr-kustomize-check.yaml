@@ -3,7 +3,7 @@ name: CI - Kustomize Dry Run Validate
 on:
   push:
     branches:
-      - backup-3
+      - backup-4
     paths:
       - 'gitops/**'
 

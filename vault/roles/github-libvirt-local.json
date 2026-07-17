@@ -1,0 +1,21 @@
+{
+  "role_type": "jwt",
+  "user_claim": "actor",
+  "bound_audiences": [
+    "vault://homelab"
+  ],
+  "bound_subject": "repo:hshamsadd/homelab:environment:homelab-production",
+  "bound_claims_type": "string",
+  "bound_claims": {
+    "repository": "hshamsadd/homelab",
+    "ref": "refs/heads/backup-4",
+    "environment": "homelab-production",
+    "runner_environment": "self-hosted",
+    "workflow_ref": "hshamsadd/homelab/.github/workflows/libvirt-local.yml@refs/heads/backup-4"
+  },
+  "token_policies": [
+    "github-libvirt-prod"
+  ],
+  "token_ttl": "30m",
+  "token_max_ttl": "45m"
+}

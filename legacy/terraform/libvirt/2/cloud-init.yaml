@@ -1,0 +1,19 @@
+#cloud-config
+hostname: ${vm_hostname}
+
+ssh_pwauth: true
+
+chpasswd:
+  list: |
+    root:password
+    ${vm_user}:terraform
+  expire: false
+
+users:
+  - name: ${vm_user}
+    groups: sudo
+    shell: /bin/bash
+    sudo: ALL=(ALL) NOPASSWD:ALL
+    lock_passwd: false
+    ssh_authorized_keys:
+      - ${public_key}
