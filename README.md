@@ -9,7 +9,7 @@ An enterprise-grade, GitOps-driven Kubernetes platform focusing on **stateful wo
 
 Unlike standard homelabs that stop at deploying stateless web servers, this repository demonstrates how to manage complex stateful data lifecycles, cross-environment database bootstrapping, and secure secret management in a fully declarative way.
 
------
+-------
 
 ## 🏗️ Architecture & Core Philosophy
 
