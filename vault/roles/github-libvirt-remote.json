@@ -8,10 +8,10 @@
   "bound_claims_type": "string",
   "bound_claims": {
     "repository": "hshamsadd/homelab",
-    "ref": "refs/heads/backup-4",
+    "ref": "refs/heads/main",
     "environment": "homelab-production",
     "runner_environment": "github-hosted",
-    "workflow_ref": "hshamsadd/homelab/.github/workflows/libvirt-remote.yml@refs/heads/backup-4"
+    "workflow_ref": "hshamsadd/homelab/.github/workflows/libvirt-remote.yml@refs/heads/main"
   },
   "token_policies": [
     "github-libvirt-prod"
