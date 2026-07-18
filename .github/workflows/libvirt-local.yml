@@ -102,7 +102,7 @@ jobs:
           command -v ansible-playbook
           command -v jq
           command -v ssh
-          command -v tailscale-get-authkey
+          command -v curl
 
           virsh -c qemu:///system list --all
           tailscale status >/dev/null
@@ -244,3 +244,5 @@ jobs:
             "$RUNNER_TEMP/libvirt-vm" \
             "$RUNNER_TEMP/libvirt-vm.pub" \
             "$RUNNER_TEMP/libvirt-vm-cert.pub"
+
+# command -v tailscale-get-authkey
