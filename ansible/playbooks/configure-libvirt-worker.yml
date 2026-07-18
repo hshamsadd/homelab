@@ -29,6 +29,13 @@
   post_tasks:
     - name: Show configured node information
       ansible.builtin.debug:
-        msg: >-
-          {{ k3s_node_name }} is configured with Tailscale address
-          {{ tailscale_ipv4 }} and the K3s agent enabled.
+        msg: |-
+          {{ k3s_node_name }} joined Kubernetes through Tailscale address {{ tailscale_ip.stdout | trim }}.
+
+          Connect using its Tailscale IP address:
+          vault-ssh --user {{ ansible_user }} {{ tailscale_ip.stdout | trim }}
+
+          Connect using Tailscale MagicDNS when available:
+          vault-ssh --user {{ ansible_user }} {{ k3s_node_name }} 
+
+# {{ inventory_hostname }}

@@ -207,6 +207,23 @@ jobs:
                       -o UserKnownHostsFile=${KNOWN_HOSTS}
           INVENTORY_EOF
 
+          echo "Waiting for ${VM_NAME} at ${VM_IP} to become reachable..."
+
+          ansible \
+            -i "$INVENTORY" \
+            libvirt_workers \
+            -m ansible.builtin.wait_for_connection \
+            -a "timeout=600 sleep=5 connect_timeout=10"
+
+          echo "Waiting for cloud-init to finish..."
+
+          ansible \
+            -i "$INVENTORY" \
+            libvirt_workers \
+            --become \
+            -m ansible.builtin.command \
+            -a "cloud-init status --wait"  
+
           ansible-playbook \
             -i "$INVENTORY" \
             ansible/playbooks/configure-libvirt-worker.yml

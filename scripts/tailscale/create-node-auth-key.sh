@@ -32,8 +32,23 @@ else
   exit 1
 fi
 
+case "$DEVICE_TAG" in
+  tag:k3s-worker)
+    EPHEMERAL=true
+    ;;
+  *)
+    EPHEMERAL=false
+    ;;
+esac
+
 exec "$GET_AUTHKEY_BIN" \
   -tags "$DEVICE_TAG" \
   -preauth=true \
   -reusable=false \
-  -ephemeral=false
+  -ephemeral="$EPHEMERAL"
+
+# exec "$GET_AUTHKEY_BIN" \
+#   -tags "$DEVICE_TAG" \
+#   -preauth=true \
+#   -reusable=false \
+#   -ephemeral=false

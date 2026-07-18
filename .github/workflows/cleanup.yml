@@ -1,0 +1,324 @@
+name: Libvirt - Cleanup RHEL10 Resources
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_destroy:
+        description: "Type DESTROY to permanently delete all Terraform-managed resources"
+        required: true
+        type: string
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: libvirt-rhel10-prod
+  cancel-in-progress: false
+
+jobs:
+  terraform-destroy:
+    name: Destroy Libvirt Infrastructure
+
+    if: ${{ inputs.confirm_destroy == 'DESTROY' }}
+
+    environment: homelab-production
+
+    runs-on:
+      - self-hosted
+      - linux
+      - x64
+      - rhel10
+      - libvirt
+
+    timeout-minutes: 60
+
+    env:
+      TF_ROOT: terraform/environments/on-premises/libvirt/rhel10-prod
+      TF_IN_AUTOMATION: "true"
+      TF_VAR_libvirt_uri: qemu:///system
+      VAULT_ADDR: https://debian.tailfb03f6.ts.net:8200
+      TMPDIR: /home/gha-runner/.terraform-tmp
+
+    steps:
+      - name: Prepare Terraform temporary directory
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          mkdir -p "$TMPDIR"
+          chmod 0700 "$TMPDIR"
+
+          test -d "$TMPDIR"
+          test -w "$TMPDIR"
+
+          echo "Terraform temporary directory: $TMPDIR"
+
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.0
+        with:
+          persist-credentials: false
+
+      - name: Authenticate to Vault
+        uses: hashicorp/vault-action@v4.0.0
+        with:
+          url: https://debian.tailfb03f6.ts.net:8200
+          method: jwt
+          path: github-actions
+          role: libvirt-prod-cleanup
+          jwtGithubAudience: vault://homelab
+          exportToken: true
+          secrets: |
+            kv/data/platforms/hcp-terraform/ci token | TF_TOKEN_app_terraform_io
+
+      - name: Install Terraform
+        uses: hashicorp/setup-terraform@v4.0.0
+        with:
+          terraform_version: 1.15.8
+          terraform_wrapper: false
+
+      - name: Add host-local tools to PATH
+        shell: bash
+        run: |
+          echo "/usr/local/bin" >> "$GITHUB_PATH"
+
+      - name: Verify local runner dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          command -v terraform
+          command -v virsh
+          command -v jq
+
+          test -x /usr/local/sbin/homelab-k3s-ci
+
+          virsh -c qemu:///system list --all
+
+      - name: Terraform initialize
+        shell: bash
+        run: |
+          terraform -chdir="$TF_ROOT" init -input=false
+
+      - name: Show Terraform-managed resources
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          echo "Resources currently managed by Terraform:"
+          echo
+
+          terraform -chdir="$TF_ROOT" state list || true
+
+      - name: Capture infrastructure information
+        id: infrastructure
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          K3S_NODE_NAME="$(
+            terraform -chdir="$TF_ROOT" \
+              output -raw k3s_node_name \
+              2>/dev/null || true
+          )"
+
+          VM_NAME="$(
+            terraform -chdir="$TF_ROOT" \
+              output -raw vm_name \
+              2>/dev/null || true
+          )"
+
+          VM_IP="$(
+            terraform -chdir="$TF_ROOT" \
+              output -raw vm_ip \
+              2>/dev/null || true
+          )"
+
+          {
+            echo "k3s_node_name=$K3S_NODE_NAME"
+            echo "vm_name=$VM_NAME"
+            echo "vm_ip=$VM_IP"
+          } >> "$GITHUB_OUTPUT"
+
+          echo "Infrastructure scheduled for cleanup:"
+          echo "VM: ${VM_NAME:-unknown}"
+          echo "VM IP: ${VM_IP:-unknown}"
+          echo "K3s node: ${K3S_NODE_NAME:-unknown}"
+
+      - name: Create Terraform destroy plan
+        shell: bash
+        run: |
+          terraform -chdir="$TF_ROOT" plan \
+            -destroy \
+            -input=false \
+            -out="$RUNNER_TEMP/libvirt-destroy.tfplan"
+
+      - name: Apply Terraform destroy plan
+        shell: bash
+        run: |
+          terraform -chdir="$TF_ROOT" apply \
+            -input=false \
+            "$RUNNER_TEMP/libvirt-destroy.tfplan"
+
+      - name: Remove Kubernetes node
+        if: ${{ steps.infrastructure.outputs.k3s_node_name != '' }}
+        shell: bash
+        env:
+          K3S_NODE_NAME: ${{ steps.infrastructure.outputs.k3s_node_name }}
+        run: |
+          set -euo pipefail
+
+          echo "Removing Kubernetes node: $K3S_NODE_NAME"
+
+          sudo -n \
+            /usr/local/sbin/homelab-k3s-ci \
+            delete \
+            "$K3S_NODE_NAME"
+
+      - name: Verify Terraform state is empty
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          REMAINING_RESOURCES="$(
+            terraform -chdir="$TF_ROOT" \
+              state list \
+              2>/dev/null || true
+          )"
+
+          if [[ -n "$REMAINING_RESOURCES" ]]; then
+            echo "ERROR: Terraform state still contains resources:"
+            echo "$REMAINING_RESOURCES"
+            exit 1
+          fi
+
+          echo "GOOD: Terraform state contains no managed resources."
+
+      - name: Show cleanup summary
+        shell: bash
+        env:
+          VM_NAME: ${{ steps.infrastructure.outputs.vm_name }}
+          K3S_NODE_NAME: ${{ steps.infrastructure.outputs.k3s_node_name }}
+        run: |
+          echo "Cleanup completed successfully."
+          echo
+          echo "Destroyed Terraform-managed libvirt infrastructure."
+          echo "VM: ${VM_NAME:-unknown}"
+          echo "Removed Kubernetes node: ${K3S_NODE_NAME:-unknown}"
+          echo
+          echo "The Terraform workspace is ready for a fresh deployment."
+
+      - name: Remove temporary files
+        if: always()
+        shell: bash
+        run: |
+          rm -f \
+            "$RUNNER_TEMP/libvirt-destroy.tfplan"
+
+# name: Cleanup VM
+
+# on:
+#   workflow_dispatch:
+#     inputs:
+#       confirm_destroy:
+#         description: "Confirm destruction of all Terraform-managed resources"
+#         required: true
+#         type: choice
+#         options:
+#           - "no"
+#           - "yes"
+
+# jobs:
+#   terraform-destroy:
+#     if: ${{ inputs.confirm_destroy == 'yes' }}
+#     runs-on: ubuntu-latest
+
+#     permissions:
+#       contents: read
+#       id-token: write
+
+#     env:
+#       TF_TOKEN_app_terraform_io: ${{ secrets.TF_API_TOKEN }}
+
+#     steps:
+#       - name: Checkout repository
+#         uses: actions/checkout@v4
+
+#       # =========================================================
+#       # PHASE 1: AWS CENTRAL OIDC AUTH & VAULT EXTRACTION
+#       # =========================================================
+#       - name: Authenticate Runner to AWS via OIDC
+#         uses: aws-actions/configure-aws-credentials@v3
+#         with:
+#           role-to-assume: arn:aws:iam::759601070365:role/github-actions-ansible-role
+#           aws-region: eu-central-1 # Points to your Frankfurt Vault data center
+#           audience: sts.amazonaws.com
+
+#       - name: Fetch Dynamic Runtime Secrets from AWS
+#         uses: aws-actions/aws-secretsmanager-get-secrets@v2
+#         with:
+#           secret-ids: |
+#             SECRETS,production/cluster/ansible-secrets
+
+#       # =========================================================
+#       # PHASE 2: CONNECT SECURE PRIVATE TAILSCALE MESH
+#       # =========================================================
+#       - name: Tailscale Connection Bootstrapper
+#         uses: tailscale/github-action@v2
+#         with:
+#           # Automatically uses keys extracted from your AWS Secrets Manager pool
+#           oauth-client-id: ${{ env.SECRETS_TS_OAUTH_CLIENT_ID }}
+#           oauth-secret: ${{ env.SECRETS_TS_OAUTH_SECRET }}
+#           tags: tag:ci
+#           args: --accept-routes
+
+#       # =========================================================
+#       # PHASE 3: POPULATE SECURE SSH AGENT KEYRING
+#       # =========================================================          
+#       - name: Setup Runner Cryptographic Key Files
+#         run: |
+#           mkdir -p /home/runner/.ssh
+
+#           # Extracts your raw multi-line key directly from AWS memory space
+#           # Note: No base64 decoding needed because you stored the raw key blocks
+#           echo "${{ env.SECRETS_GITHUB_VM_SSH_KEY }}" | base64 -d > /home/runner/.ssh/id_ed25519_github_actions
+
+#           # Apply tight file locks required by the OpenSSH validation suite
+#           chmod 600 /home/runner/.ssh/id_ed25519_github_actions
+#           ls -l /home/runner/.ssh/id_ed25519_github_actions
+
+#           # Populates known_hosts via your Tailscale overlay IP to eliminate prompts
+#           ssh-keyscan -H 100.76.59.49 >> /home/runner/.ssh/known_hosts
+
+#       # =========================================================
+#       # PHASE 4: REVERSE IAC PROVISIONING LAYER (DESTROY)
+#       # =========================================================
+#       - name: Setup Terraform
+#         uses: hashicorp/setup-terraform@v3
+#         with:
+#           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+#           terraform_wrapper: false
+
+#       - name: Terraform Init
+#         working-directory: terraform
+#         env:
+#           TF_VAR_ssh_private_key_path: "/home/runner/.ssh/id_ed25519_github_actions"
+#         run: terraform init
+
+#       - name: Show destroy plan
+#         working-directory: terraform
+#         env:
+#           TF_VAR_ssh_private_key_path: "/home/runner/.ssh/id_ed25519_github_actions"
+#         run: |
+#           terraform plan \
+#             -destroy \
+#             -out=destroy.tfplan
+
+#       - name: Apply destroy plan
+#         working-directory: terraform
+#         env:
+#           TF_VAR_ssh_private_key_path: "/home/runner/.ssh/id_ed25519_github_actions"
+#         run: |
+#           terraform apply \
+#             -auto-approve \
+#             destroy.tfplan
