@@ -57,11 +57,12 @@ yarn-debug.log*
 yarn-error.log*
 
 terraform.tfstate*
-ssh/
 /.ssh
 
 # SSH keys and generated Ansible files
 ssh/
+!vault/ssh/
+!vault/ssh/vault-ssh-user-ca.pub
 *.pem
 ansible/terraform_vm_key.pem
 ansible/terraform_vm_key.pub
