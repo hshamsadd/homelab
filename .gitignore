@@ -133,7 +133,6 @@ tmp-secrets/
 
 ===
 
-ssh/
 *.pem
 ansible/terraform_vm_key.pem
 ansible/terraform_vm_key.pub
