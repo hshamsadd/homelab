@@ -271,20 +271,16 @@ jobs:
             curl
 
           if ! command -v tailscale >/dev/null 2>&1; then
-            curl -fsSL https://tailscale.com/install.sh |
-            sh
+            curl -fsSL https://tailscale.com/install.sh | sh
           fi
 
-          TS_AUTH_KEY="\$(
-            printf '%s' '${TAILSCALE_AUTH_KEY_B64}' |
-            base64 -d
-          )"
+          TS_AUTH_KEY="\$( printf '%s' '${TAILSCALE_AUTH_KEY_B64}' | base64 -d )"
 
           if tailscale status >/dev/null 2>&1; then
             echo "Tailscale is already connected."
           else
             tailscale up \
-              --auth-key="$TS_AUTH_KEY" \
+              --auth-key="\$TS_AUTH_KEY" \
               --hostname="${K3S_NODE_NAME}" \
               --accept-dns=true
           fi
@@ -297,12 +293,11 @@ jobs:
             /etc/ssh/sshd_config.d
 
           install \
-          -d \
-          -m 0755 \
-          /run/sshd  
+            -d \
+            -m 0755 \
+            /run/sshd
 
-          printf '%s' '${SSH_CA_B64}' |
-          base64 -d \
+          printf '%s' '${SSH_CA_B64}' | base64 -d \
             > /etc/ssh/vault-user-ca.pub
 
           chmod \
