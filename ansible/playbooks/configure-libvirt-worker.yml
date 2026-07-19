@@ -38,10 +38,10 @@
         msg: |-
           {{ k3s_node_name }} joined Kubernetes through Tailscale address {{ tailscale_summary_ip.stdout | trim }}.
 
-          Connect using its Tailscale IP address:
-          vault-ssh --user {{ ansible_user }} {{ tailscale_summary_ip.stdout | trim }}
-
           Connect using Tailscale MagicDNS when available:
           vault-ssh --user {{ ansible_user }} {{ k3s_node_name }} 
+
+          Connect using its Tailscale IP address:
+          vault-ssh --user {{ ansible_user }} {{ tailscale_summary_ip.stdout | trim }}
 
 # {{ inventory_hostname }}
