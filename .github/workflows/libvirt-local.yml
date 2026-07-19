@@ -195,7 +195,7 @@ jobs:
           cat > "$INVENTORY" <<INVENTORY_EOF
           all:
             children:
-              libvirt_workers:
+              k3s_workers:
                 hosts:
                   ${VM_NAME}:
                     ansible_host: ${VM_IP}
@@ -211,7 +211,7 @@ jobs:
 
           ansible \
             -i "$INVENTORY" \
-            libvirt_workers \
+            k3s_workers \
             -m ansible.builtin.wait_for_connection \
             -a "timeout=600 sleep=5 connect_timeout=10"
 
@@ -219,14 +219,14 @@ jobs:
 
           ansible \
             -i "$INVENTORY" \
-            libvirt_workers \
+            k3s_workers \
             --become \
             -m ansible.builtin.command \
             -a "cloud-init status --wait"  
 
           ansible-playbook \
             -i "$INVENTORY" \
-            ansible/playbooks/configure-libvirt-worker.yml
+            ansible/playbooks/configure-k3s-worker.yml
 
           sudo -n \
             /usr/local/sbin/homelab-k3s-ci \
@@ -246,5 +246,6 @@ jobs:
             "$RUNNER_TEMP/libvirt-vm-cert.pub"
 
 # command -v tailscale-get-authkey
-#command -v curl
+# command -v curl
 # ansible/playbooks/configure-libvirt-worker.yml
+# ansible/playbooks/configure-k3s-worker.yml
