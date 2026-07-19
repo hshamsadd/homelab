@@ -435,7 +435,10 @@ jobs:
             exit 1
           fi
 
+          echo "Verifying Tailscale connectivity to ${K3S_NODE_NAME}..."
+
           tailscale ping \
+            --until-direct=false \
             -c 3 \
             "$K3S_NODE_NAME"
 
