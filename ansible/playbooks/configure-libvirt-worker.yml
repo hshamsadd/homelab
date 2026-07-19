@@ -1,4 +1,3 @@
----
 - name: Configure the libvirt K3s worker
   hosts: libvirt_workers
   become: true

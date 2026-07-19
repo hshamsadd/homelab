@@ -226,7 +226,7 @@ jobs:
 
           ansible-playbook \
             -i "$INVENTORY" \
-            ansible/playbooks/configure-libvirt-worker.yml
+            ansible/playbooks/configure-k3s-worker.yml
 
           sudo -n \
             /usr/local/sbin/homelab-k3s-ci \
@@ -246,3 +246,4 @@ jobs:
             "$RUNNER_TEMP/libvirt-vm-cert.pub"
 
 # command -v tailscale-get-authkey
+# ansible/playbooks/configure-libvirt-worker.yml

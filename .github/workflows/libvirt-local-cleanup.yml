@@ -1,4 +1,4 @@
-name: Libvirt - Cleanup RHEL10 Resources
+name: Libvirt - Cleanup Local Resources
 
 on:
   workflow_dispatch:
