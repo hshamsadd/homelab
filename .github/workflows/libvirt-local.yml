@@ -102,7 +102,7 @@ jobs:
           command -v ansible-playbook
           command -v jq
           command -v ssh
-          command -v curl
+          command -v tailscale-get-authkey
 
           virsh -c qemu:///system list --all
           tailscale status >/dev/null
@@ -226,7 +226,7 @@ jobs:
 
           ansible-playbook \
             -i "$INVENTORY" \
-            ansible/playbooks/configure-k3s-worker.yml
+            ansible/playbooks/configure-libvirt-worker.yml
 
           sudo -n \
             /usr/local/sbin/homelab-k3s-ci \
@@ -246,4 +246,5 @@ jobs:
             "$RUNNER_TEMP/libvirt-vm-cert.pub"
 
 # command -v tailscale-get-authkey
+#command -v curl
 # ansible/playbooks/configure-libvirt-worker.yml
