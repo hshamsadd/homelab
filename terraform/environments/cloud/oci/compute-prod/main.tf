@@ -76,9 +76,9 @@ resource "oci_core_security_list" "public_sl" {
     description = "Temporary public SSH access protected by Vault SSH certificates"
     stateless   = false
     tcp_options {
-    min = 22
-    max = 22
-  }
+      min = 22
+      max = 22
+    }
   }
 }
 
@@ -121,7 +121,7 @@ resource "oci_core_instance" "cloud-node-02" {
   }
 
   metadata = {
-  user_data = base64encode(<<-EOF
+    user_data = base64encode(<<-EOF
     #!/usr/bin/env bash
     set -Eeuo pipefail
 
@@ -150,6 +150,6 @@ resource "oci_core_instance" "cloud-node-02" {
 
     systemctl restart ssh
   EOF
-  )
-}
+    )
+  }
 }
