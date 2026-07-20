@@ -5,8 +5,10 @@ metadata:
   namespace: argocd # <-- Add this line to force it out of the production namespace
   annotations:
     cert-manager.io/cluster-issuer: "local-homelab-issuer"
-    # Tells Traefik that the backend ArgoCD service requires an HTTPS connection
+    # Rule 1: Tell Traefik the backend is talking HTTPS over port 443
     traefik.ingress.kubernetes.io/service.serversscheme: https
+    # Rule 2: Force Traefik to accept ArgoCD's internal self-signed backend cert
+    traefik.ingress.kubernetes.io/service.serverstransport: argocd-server-transport@kubernetescrd
 spec:
   ingressClassName: traefik
   tls:
