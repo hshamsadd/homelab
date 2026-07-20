@@ -103,7 +103,7 @@ resource "oci_core_instance" "cloud-node-02" {
   shape               = var.cloud-node-02.shape.name
   availability_domain = var.cloud-node-02.availability_domain
   display_name        = var.cloud-node-02.display_name
-
+  preserve_boot_volume = false
   source_details {
     source_id               = data.oci_core_images.latest_ubuntu_arm.images[0].id
     source_type             = "image"

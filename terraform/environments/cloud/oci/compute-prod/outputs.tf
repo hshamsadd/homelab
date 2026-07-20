@@ -71,3 +71,8 @@ output "instance_private_ip" {
   value       = oci_core_instance.cloud-node-02.private_ip
   description = "The private internal IP address within the subnet range."
 }
+
+output "boot_volume_id" {
+  value       = oci_core_instance.cloud-node-02.boot_volume_id
+  description = "The OCID of the OCI instance boot volume."
+}

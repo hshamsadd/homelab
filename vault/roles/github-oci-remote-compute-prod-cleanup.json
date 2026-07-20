@@ -1,0 +1,21 @@
+{
+  "role_type": "jwt",
+  "user_claim": "actor",
+  "bound_audiences": [
+    "vault://homelab"
+  ],
+  "bound_subject": "repo:hshamsadd/homelab:environment:homelab-production",
+  "bound_claims_type": "string",
+  "bound_claims": {
+    "environment": "homelab-production",
+    "ref": "refs/heads/main",
+    "repository": "hshamsadd/homelab",
+    "runner_environment": "github-hosted",
+    "workflow_ref": "hshamsadd/homelab/.github/workflows/oci-compute-cleanup.yml@refs/heads/main"
+  },
+  "token_policies": [
+    "github-oci-compute-prod"
+  ],
+  "token_ttl": 1800,
+  "token_max_ttl": 2700
+}
