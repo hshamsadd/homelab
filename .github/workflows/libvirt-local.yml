@@ -11,12 +11,6 @@ on:
         options:
           - plan
           - apply
-  # # Temporary trigger for testing this workflow from backup-4....
-  # push:
-  #   branches:
-  #     - main
-  #   paths:
-  #     - ".github/workflows/libvirt-local.yml"
 
 permissions:
   contents: read
@@ -54,15 +48,11 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
           mkdir -p "$TMPDIR"
           chmod 0700 "$TMPDIR"
-
           test -d "$TMPDIR"
           test -w "$TMPDIR"
-
           echo "Terraform temporary directory: $TMPDIR"
-
       - name: Checkout repository
         uses: actions/checkout@v7.0.0
         with:
@@ -81,7 +71,6 @@ jobs:
             kv/data/platforms/hcp-terraform/ci token | TF_TOKEN_app_terraform_io ;
             kv/data/platforms/tailscale/provisioner oauth_client_id | TS_API_CLIENT_ID ;
             kv/data/platforms/tailscale/provisioner oauth_client_secret | TS_API_CLIENT_SECRET
-
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v4.0.0
         with:
@@ -92,21 +81,17 @@ jobs:
         shell: bash
         run: |
           echo "/usr/local/bin" >> "$GITHUB_PATH"
-
       - name: Verify local runner dependencies
         shell: bash
         run: |
           set -euo pipefail
-
           command -v terraform
           command -v ansible-playbook
           command -v jq
           command -v ssh
           command -v tailscale-get-authkey
-
           virsh -c qemu:///system list --all
           tailscale status >/dev/null
-
       - name: Terraform format check
         shell: bash
         run: terraform -chdir="$TF_ROOT" fmt -check -recursive
@@ -125,7 +110,6 @@ jobs:
           terraform -chdir="$TF_ROOT" plan \
             -input=false \
             -out="$RUNNER_TEMP/libvirt-local.tfplan"
-
       - name: Terraform apply
         if: github.event_name == 'workflow_dispatch' && inputs.operation == 'apply'
         shell: bash
@@ -134,64 +118,50 @@ jobs:
             -input=false \
             -auto-approve \
             "$RUNNER_TEMP/libvirt-local.tfplan"
-
       - name: Configure VM using Ansible
         if: github.event_name == 'workflow_dispatch' && inputs.operation == 'apply'
         shell: bash
         run: |
           set -euo pipefail
-
           SSH_KEY="$RUNNER_TEMP/libvirt-vm"
           INVENTORY="$RUNNER_TEMP/libvirt-local-inventory.yml"
           KNOWN_HOSTS="$RUNNER_TEMP/libvirt-local-known_hosts"
-
           ssh-keygen \
             -t ed25519 \
             -N "" \
             -C "github-local-${GITHUB_RUN_ID}" \
             -f "$SSH_KEY"
-
           scripts/vault/sign-ssh-key.sh \
             "$SSH_KEY.pub" \
             "ubuntu" \
             "30m" \
             > "$SSH_KEY-cert.pub"
-
           chmod 0600 "$SSH_KEY"
           chmod 0644 "$SSH_KEY.pub" "$SSH_KEY-cert.pub"
-
           VM_NAME="$(terraform -chdir="$TF_ROOT" output -raw vm_name)"
           VM_IP="$(terraform -chdir="$TF_ROOT" output -raw vm_ip)"
           VM_USER="$(terraform -chdir="$TF_ROOT" output -raw vm_user)"
           K3S_NODE_NAME="$(terraform -chdir="$TF_ROOT" output -raw k3s_node_name)"
-
           TAILSCALE_AUTH_KEY="$(
             scripts/tailscale/create-node-auth-key.sh \
               tag:k3s-worker
           )"
-
           echo "::add-mask::$TAILSCALE_AUTH_KEY"
-
           sudo -n \
             /usr/local/sbin/homelab-k3s-ci \
             delete \
             "$K3S_NODE_NAME"
-
           K3S_JOIN_TOKEN="$(
             sudo -n \
               /usr/local/sbin/homelab-k3s-ci \
               token
           )"
-
           echo "::add-mask::$K3S_JOIN_TOKEN"
-
           export TAILSCALE_AUTH_KEY
           export K3S_JOIN_TOKEN
           export K3S_NODE_NAME
-
           touch "$KNOWN_HOSTS"
           chmod 0600 "$KNOWN_HOSTS"
-
           cat > "$INVENTORY" <<INVENTORY_EOF
           all:
             children:
@@ -206,33 +176,26 @@ jobs:
                       -o StrictHostKeyChecking=accept-new
                       -o UserKnownHostsFile=${KNOWN_HOSTS}
           INVENTORY_EOF
-
           echo "Waiting for ${VM_NAME} at ${VM_IP} to become reachable..."
-
           ansible \
             -i "$INVENTORY" \
             libvirt_workers \
             -m ansible.builtin.wait_for_connection \
             -a "timeout=600 sleep=5 connect_timeout=10"
-
           echo "Waiting for cloud-init to finish..."
-
           ansible \
             -i "$INVENTORY" \
             libvirt_workers \
             --become \
             -m ansible.builtin.command \
             -a "cloud-init status --wait"  
-
           ansible-playbook \
             -i "$INVENTORY" \
             ansible/playbooks/configure-libvirt-worker.yml
-
           sudo -n \
             /usr/local/sbin/homelab-k3s-ci \
             finalize \
             "$K3S_NODE_NAME"
-
       - name: Remove temporary credentials
         if: always()
         shell: bash
@@ -246,5 +209,5 @@ jobs:
             "$RUNNER_TEMP/libvirt-vm-cert.pub"
 
 # command -v tailscale-get-authkey
-# command -v curl
+#command -v curl
 # ansible/playbooks/configure-libvirt-worker.yml
