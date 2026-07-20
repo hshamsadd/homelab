@@ -114,26 +114,52 @@ variable "cloud-node-02" {
 }
 
 ############################################
+# Runtime / CI
+############################################
+variable "oci_private_key" {
+  type        = string
+  description = "OCI API signing private key supplied by Vault at runtime."
+  sensitive   = true
+}
+
+variable "ssh_ca_public_key" {
+  type        = string
+  description = "Vault SSH user CA public key trusted by the VM."
+}
+
+variable "vm_user" {
+  type        = string
+  description = "Linux user used for SSH and Ansible."
+  default     = "ubuntu"
+}
+
+variable "k3s_node_name" {
+  type        = string
+  description = "Node name registered with K3s."
+}
+
+
+############################################
 # Sensitive Variables
 ############################################
-variable "tailscale_auth_key" {
-  type        = string
-  description = "Ephemeral, reusable Tailscale auth key to join the mesh"
-  sensitive   = true
-}
+# variable "tailscale_auth_key" {
+#   type        = string
+#   description = "Ephemeral, reusable Tailscale auth key to join the mesh"
+#   sensitive   = true
+# }
 
-variable "private_key_path" {
-  type        = string
-  description = "The path to the private key file."
-}
+# variable "private_key_path" {
+#   type        = string
+#   description = "The path to the private key file."
+# }
 
-variable "ssh_authorized_keys_path" {
-  type        = string
-  description = "The path to the public key file."
-}
+# variable "ssh_authorized_keys_path" {
+#   type        = string
+#   description = "The path to the public key file."
+# }
 
-variable "k3s_node_token" {
-  type        = string
-  description = "The K3s cluster node token to join the control plane"
-  sensitive   = true
-}
+# variable "k3s_node_token" {
+#   type        = string
+#   description = "The K3s cluster node token to join the control plane"
+#   sensitive   = true
+# }

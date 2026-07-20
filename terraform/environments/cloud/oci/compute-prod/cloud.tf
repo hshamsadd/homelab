@@ -4,8 +4,8 @@ terraform {
     organization = "zshamsadd-devops"
 
     workspaces {
-      project = "On-Premises"
-      name    = "oci-local-prod"
+      project = "Cloud"
+      name    = "oci-remote-compute-prod"
     }
   }
 }

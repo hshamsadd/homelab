@@ -70,11 +70,15 @@ resource "oci_core_security_list" "public_sl" {
 
   # Stateful ingress: Allows tracked SSH traffic in from anywhere
   ingress_security_rules {
-    protocol    = "all" # CHANGE THIS TO "tcp" IF YOU ONLY WANT TO ALLOW TCP PORT 22
+    protocol    = "6"
     source      = "0.0.0.0/0"
     source_type = "CIDR_BLOCK"
-    description = "Allow all inbound traffic types globally (for testing purposes only) Mimic vanilla OS: Allow all inbound traffic globally"
+    description = "Temporary public SSH access protected by Vault SSH certificates"
     stateless   = false
+    tcp_options {
+    min = 22
+    max = 22
+  }
   }
 }
 
@@ -117,27 +121,35 @@ resource "oci_core_instance" "cloud-node-02" {
   }
 
   metadata = {
-    #ssh_authorized_keys = join("\n", [for k in var.cloud-node-02.ssh_authorized_keys : chomp(k)])
-    ssh_authorized_keys = file(var.ssh_authorized_keys_path)
-    # THE CLOUD-INIT HANDOFF
-    user_data = base64encode(<<-EOF
-      #!/bin/bash
-      # 1. Update and install prerequisites
-      apt-get update && apt-get install -y curl apt-transport-https
+  user_data = base64encode(<<-EOF
+    #!/usr/bin/env bash
+    set -Eeuo pipefail
 
-      # 2. Install Tailscale
-      curl -fsSL https://tailscale.com/install.sh | sh
-      tailscale up --authkey=${var.tailscale_auth_key} --hostname=${var.cloud-node-02.display_name}
+    install \
+      -d \
+      -m 0755 \
+      /etc/ssh/sshd_config.d
 
-      # 3. Wait for Tailscale interface to be ready
-      sleep 10
-      TAILSCALE_IP=$(tailscale ip -4)
+    cat > /etc/ssh/vault-user-ca.pub <<'VAULT_CA_EOF'
+    ${trimspace(var.ssh_ca_public_key)}
+    VAULT_CA_EOF
 
-      # 4. Install K3s and join the mesh API
-      curl -sfL https://get.k3s.io | K3S_URL=https://100.76.59.49:6443 \
-      K3S_TOKEN="${var.k3s_node_token}" \
-      INSTALL_K3S_EXEC="agent --node-ip=$TAILSCALE_IP --flannel-iface=tailscale0" sh -
-    EOF
-    )
-  }
+    chmod \
+      0644 \
+      /etc/ssh/vault-user-ca.pub
+
+    cat > /etc/ssh/sshd_config.d/90-vault-user-ca.conf <<'SSHD_EOF'
+    TrustedUserCAKeys /etc/ssh/vault-user-ca.pub
+    PubkeyAuthentication yes
+    PasswordAuthentication no
+    KbdInteractiveAuthentication no
+    PermitRootLogin no
+    SSHD_EOF
+
+    /usr/sbin/sshd -t
+
+    systemctl restart ssh
+  EOF
+  )
+}
 }
