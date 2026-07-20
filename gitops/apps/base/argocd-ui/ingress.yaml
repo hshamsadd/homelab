@@ -5,7 +5,7 @@ metadata:
   annotations:
     cert-manager.io/cluster-issuer: "local-homelab-issuer"
     # Tells Traefik that the backend ArgoCD service requires an HTTPS connection
-    #traefik.ingress.kubernetes.io/service.serversscheme: https
+    traefik.ingress.kubernetes.io/service.serversscheme: https
 spec:
   ingressClassName: traefik
   tls:
@@ -22,4 +22,4 @@ spec:
               service:
                 name: argocd-server
                 port:
-                  number: 80 # Traefik already routes websecure automatically via the IngressClass
+                  number: 443 # Traefik already routes websecure automatically via the IngressClass
