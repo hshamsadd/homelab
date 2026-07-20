@@ -1,4 +1,4 @@
-name: AWS Foundation
+name: OCI Remote Compute
 
 on:
   workflow_dispatch:
@@ -17,23 +17,28 @@ permissions:
   id-token: write
 
 concurrency:
-  group: aws-foundation-prod
+  group: oci-compute-prod
   cancel-in-progress: false
 
 jobs:
   terraform-ansible:
-    name: AWS Terraform and Ansible
+    name: OCI Terraform and Ansible
+
     environment: homelab-production
+
     runs-on: ubuntu-latest
+
     timeout-minutes: 60
 
     env:
-      TF_ROOT: terraform/environments/cloud/aws/foundation-prod
+      TF_ROOT: terraform/environments/cloud/oci/compute-prod
       TF_IN_AUTOMATION: "true"
+
       VAULT_ADDR: https://debian.tailfb03f6.ts.net:8200
+
       ANSIBLE_CONFIG: ${{ github.workspace }}/ansible/ansible.cfg
       ANSIBLE_ROLES_PATH: ${{ github.workspace }}/ansible/roles
-      AWS_REGION: ${{ vars.AWS_REGION }}
+
       K3S_CONTROL_HOST: ${{ vars.K3S_CONTROL_HOST }}
       K3S_CONTROL_USER: ${{ vars.K3S_CONTROL_USER }}
 
@@ -57,21 +62,27 @@ jobs:
           url: https://debian.tailfb03f6.ts.net:8200
           method: jwt
           path: github-actions
-          role: aws-foundation-prod-remote
+          role: oci-compute-prod-remote
           jwtGithubAudience: vault://homelab
           exportToken: true
           secrets: |
             kv/data/platforms/hcp-terraform/ci token | TF_TOKEN_app_terraform_io ;
             kv/data/platforms/tailscale/provisioner oauth_client_id | TS_API_CLIENT_ID ;
-            kv/data/platforms/tailscale/provisioner oauth_client_secret | TS_API_CLIENT_SECRET
+            kv/data/platforms/tailscale/provisioner oauth_client_secret | TS_API_CLIENT_SECRET ;
+            kv/data/infrastructure/production/oci private_key | TF_VAR_oci_private_key
 
-      - name: Configure AWS credentials for SSM
-        if: github.event_name == 'workflow_dispatch' && inputs.operation == 'apply'
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          role-to-assume: ${{ vars.AWS_GITHUB_ROLE_ARN }}
-          aws-region: ${{ vars.AWS_REGION }}
-          role-session-name: github-aws-foundation-${{ github.run_id }}
+      - name: Export Vault SSH CA for Terraform
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          test -s "$GITHUB_WORKSPACE/vault/ssh/vault-ssh-user-ca.pub"
+
+          {
+            echo 'TF_VAR_ssh_ca_public_key<<VAULT_CA_EOF'
+            cat "$GITHUB_WORKSPACE/vault/ssh/vault-ssh-user-ca.pub"
+            echo 'VAULT_CA_EOF'
+          } >> "$GITHUB_ENV"
 
       - name: Install Terraform
         uses: hashicorp/setup-terraform@v4.0.0
@@ -86,6 +97,7 @@ jobs:
           set -euo pipefail
 
           sudo apt-get update
+
           sudo apt-get install -y \
             ansible-core \
             jq
@@ -99,8 +111,10 @@ jobs:
           command -v jq
           command -v curl
 
+          test -x scripts/tailscale/create-node-auth-key.sh
+          test -x scripts/vault/sign-ci-ssh-key.sh
+
           if [[ "${{ inputs.operation }}" == "apply" ]]; then
-            command -v aws
             command -v ssh
             command -v ssh-keygen
             command -v ansible
@@ -151,23 +165,19 @@ jobs:
             -input=false \
             -auto-approve
 
-      - name: Bootstrap AWS VM through SSM and configure K3s worker
+      - name: Bootstrap OCI VM and configure K3s worker
         if: github.event_name == 'workflow_dispatch' && inputs.operation == 'apply'
         shell: bash
         run: |
           set -Eeuo pipefail
 
-          SSH_KEY="$RUNNER_TEMP/aws-vm"
+          SSH_KEY="$RUNNER_TEMP/oci-vm"
 
-          CONTROL_CERT="$RUNNER_TEMP/aws-control-cert.pub"
-          VM_CERT="$RUNNER_TEMP/aws-vm-cert.pub"
+          CONTROL_CERT="$RUNNER_TEMP/oci-control-cert.pub"
+          VM_CERT="$RUNNER_TEMP/oci-vm-cert.pub"
 
-          INVENTORY="$RUNNER_TEMP/aws-inventory.yml"
-          KNOWN_HOSTS="$RUNNER_TEMP/aws-known-hosts"
-
-          BOOTSTRAP_SCRIPT="$RUNNER_TEMP/aws-ssm-bootstrap.sh"
-
-          SSH_CA_PUBLIC_KEY="$GITHUB_WORKSPACE/vault/ssh/vault-ssh-user-ca.pub"
+          INVENTORY="$RUNNER_TEMP/oci-inventory.yml"
+          KNOWN_HOSTS="$RUNNER_TEMP/oci-known-hosts"
 
           VM_NAME="$(
             terraform \
@@ -201,11 +211,96 @@ jobs:
               instance_id
           )"
 
-          echo "AWS instance: $INSTANCE_ID"
+          VM_PUBLIC_IP="$(
+            terraform \
+              -chdir="$TF_ROOT" \
+              output \
+              -raw \
+              vm_public_ip
+          )"
+
+          echo "OCI instance: $INSTANCE_ID"
           echo "VM name: $VM_NAME"
+          echo "Public IP: $VM_PUBLIC_IP"
           echo "K3s node: $K3S_NODE_NAME"
 
-          test -s "$SSH_CA_PUBLIC_KEY"
+          touch "$KNOWN_HOSTS"
+
+          chmod \
+            0600 \
+            "$KNOWN_HOSTS"
+
+          ssh-keygen \
+            -t ed25519 \
+            -N "" \
+            -C "github-oci-${GITHUB_RUN_ID}" \
+            -f "$SSH_KEY"
+
+          scripts/vault/sign-ci-ssh-key.sh \
+            "$SSH_KEY.pub" \
+            "$K3S_CONTROL_USER" \
+            "30m" \
+            "homelab-ci" \
+            > "$CONTROL_CERT"
+
+          scripts/vault/sign-ci-ssh-key.sh \
+            "$SSH_KEY.pub" \
+            "$VM_USER" \
+            "30m" \
+            "homelab-ci" \
+            > "$VM_CERT"
+
+          chmod \
+            0600 \
+            "$SSH_KEY"
+
+          chmod \
+            0644 \
+            "$SSH_KEY.pub" \
+            "$CONTROL_CERT" \
+            "$VM_CERT"
+
+          ssh-keygen \
+            -Lf \
+            "$CONTROL_CERT" \
+            >/dev/null
+
+          ssh-keygen \
+            -Lf \
+            "$VM_CERT" \
+            >/dev/null
+
+          VM_PUBLIC_SSH=(
+            ssh
+            -o IdentitiesOnly=yes
+            -o IdentityAgent=none
+            -o CertificateFile="$VM_CERT"
+            -o StrictHostKeyChecking=accept-new
+            -o UserKnownHostsFile="$KNOWN_HOSTS"
+            -o ConnectTimeout=10
+            -i "$SSH_KEY"
+            "${VM_USER}@${VM_PUBLIC_IP}"
+          )
+
+          echo "Waiting for OCI VM SSH with Vault certificate..."
+
+          VM_SSH_READY="false"
+
+          for attempt in $(seq 1 60); do
+            if "${VM_PUBLIC_SSH[@]}" true 2>/dev/null; then
+              VM_SSH_READY="true"
+              echo "OCI VM is reachable using Vault SSH certificate."
+              break
+            fi
+
+            echo "SSH not ready yet (${attempt}/60). Waiting 10 seconds..."
+            sleep 10
+          done
+
+          if [[ "$VM_SSH_READY" != "true" ]]; then
+            echo "ERROR: OCI VM did not become reachable using Vault SSH." >&2
+            exit 1
+          fi
 
           echo "Creating one-time Tailscale auth key..."
 
@@ -216,48 +311,16 @@ jobs:
 
           echo "::add-mask::$TAILSCALE_AUTH_KEY"
 
-          echo "Waiting for EC2 instance $INSTANCE_ID to become available through SSM..."
-
-          SSM_STATUS=""
-
-          for attempt in $(seq 1 60); do
-            SSM_STATUS="$(
-              aws ssm \
-                describe-instance-information \
-                --filters "Key=InstanceIds,Values=${INSTANCE_ID}" \
-                --query 'InstanceInformationList[0].PingStatus' \
-                --output text \
-                2>/dev/null ||
-              true
-            )"
-
-            if [[ "$SSM_STATUS" == "Online" ]]; then
-              echo "SSM instance is online."
-              break
-            fi
-
-            echo "SSM not ready yet (${attempt}/60). Waiting 10 seconds..."
-            sleep 10
-          done
-
-          if [[ "$SSM_STATUS" != "Online" ]]; then
-            echo "ERROR: EC2 instance did not become available through SSM." >&2
-            exit 1
-          fi
-
           TAILSCALE_AUTH_KEY_B64="$(
             printf '%s' "$TAILSCALE_AUTH_KEY" |
             base64 -w0
           )"
 
-          SSH_CA_B64="$(
-            base64 \
-              -w0 \
-              "$SSH_CA_PUBLIC_KEY"
-          )"
+          echo "Bootstrapping OCI VM..."
 
-          cat > "$BOOTSTRAP_SCRIPT" <<BOOTSTRAP_EOF
-          #!/usr/bin/env bash
+          "${VM_PUBLIC_SSH[@]}" \
+            sudo -n \
+            bash -s <<BOOTSTRAP_EOF
           set -Eeuo pipefail
 
           cloud-init status --wait
@@ -274,7 +337,7 @@ jobs:
             curl -fsSL https://tailscale.com/install.sh | sh
           fi
 
-          TS_AUTH_KEY="\$( printf '%s' '${TAILSCALE_AUTH_KEY_B64}' | base64 -d )"
+          TS_AUTH_KEY="\$(printf '%s' '${TAILSCALE_AUTH_KEY_B64}' | base64 -d)"
 
           if tailscale status >/dev/null 2>&1; then
             echo "Tailscale is already connected."
@@ -286,126 +349,9 @@ jobs:
           fi
 
           unset TS_AUTH_KEY
-
-          install \
-            -d \
-            -m 0755 \
-            /etc/ssh/sshd_config.d
-
-          install \
-            -d \
-            -m 0755 \
-            /run/sshd
-
-          printf '%s' '${SSH_CA_B64}' | base64 -d \
-            > /etc/ssh/vault-user-ca.pub
-
-          chmod \
-            0644 \
-            /etc/ssh/vault-user-ca.pub
-
-          cat > /etc/ssh/sshd_config.d/90-vault-user-ca.conf <<'SSHD_EOF'
-          TrustedUserCAKeys /etc/ssh/vault-user-ca.pub
-          PasswordAuthentication no
-          KbdInteractiveAuthentication no
-          PermitRootLogin no
-          SSHD_EOF
-
-          /usr/sbin/sshd -t
-
-          systemctl restart ssh
           BOOTSTRAP_EOF
 
-          BOOTSTRAP_B64="$(
-            base64 \
-              -w0 \
-              "$BOOTSTRAP_SCRIPT"
-          )"
-
-          SSM_PARAMETERS="$(
-            jq \
-              --null-input \
-              --compact-output \
-              --arg command \
-                "printf '%s' '${BOOTSTRAP_B64}' | base64 -d | bash" \
-              '{
-                commands: [$command]
-              }'
-          )"
-
-          COMMAND_ID="$(
-            aws ssm \
-              send-command \
-              --instance-ids "$INSTANCE_ID" \
-              --document-name "AWS-RunShellScript" \
-              --comment "Bootstrap Tailscale and Vault SSH CA for ${K3S_NODE_NAME}" \
-              --parameters "$SSM_PARAMETERS" \
-              --query 'Command.CommandId' \
-              --output text
-          )"
-
-          echo "SSM command submitted: $COMMAND_ID"
-          echo "Waiting for SSM bootstrap command to complete..."
-
-          if ! aws ssm \
-            wait \
-            command-executed \
-            --command-id "$COMMAND_ID" \
-            --instance-id "$INSTANCE_ID"
-          then
-            echo "ERROR: SSM bootstrap command failed." >&2
-            echo
-            echo "SSM command details:" >&2
-
-            aws ssm \
-              get-command-invocation \
-              --command-id "$COMMAND_ID" \
-              --instance-id "$INSTANCE_ID" \
-              --query '{
-                Status:Status,
-                StatusDetails:StatusDetails,
-                ResponseCode:ResponseCode,
-                StandardOutput:StandardOutputContent,
-                StandardError:StandardErrorContent
-              }' \
-              --output json \
-              >&2 || true
-
-            exit 1
-          fi
-
-          COMMAND_STATUS="$(
-            aws ssm \
-              get-command-invocation \
-              --command-id "$COMMAND_ID" \
-              --instance-id "$INSTANCE_ID" \
-              --query 'Status' \
-              --output text
-          )"
-
-          if [[ "$COMMAND_STATUS" != "Success" ]]; then
-            echo "ERROR: SSM bootstrap finished with unexpected status: $COMMAND_STATUS" >&2
-
-            aws ssm \
-              get-command-invocation \
-              --command-id "$COMMAND_ID" \
-              --instance-id "$INSTANCE_ID" \
-              --query '{
-                Status:Status,
-                StatusDetails:StatusDetails,
-                ResponseCode:ResponseCode,
-                StandardOutput:StandardOutputContent,
-                StandardError:StandardErrorContent
-              }' \
-              --output json \
-              >&2 || true
-
-            exit 1
-          fi
-
-          echo "SSM bootstrap completed successfully."
-
-          echo "AWS worker joined Tailscale as ${K3S_NODE_NAME}."
+          echo "OCI worker joined Tailscale as ${K3S_NODE_NAME}."
 
           echo "Waiting for Tailscale MagicDNS..."
 
@@ -435,52 +381,10 @@ jobs:
             exit 1
           fi
 
-          echo "Verifying Tailscale connectivity to ${K3S_NODE_NAME}..."
-
           tailscale ping \
             --until-direct=false \
             -c 3 \
             "$K3S_NODE_NAME"
-
-          touch "$KNOWN_HOSTS"
-          chmod 0600 "$KNOWN_HOSTS"
-
-          ssh-keygen \
-            -t ed25519 \
-            -N "" \
-            -C "github-aws-${GITHUB_RUN_ID}" \
-            -f "$SSH_KEY"
-
-          scripts/vault/sign-ci-ssh-key.sh \
-            "$SSH_KEY.pub" \
-            "$K3S_CONTROL_USER" \
-            "30m" \
-            "homelab-ci" \
-            > "$CONTROL_CERT"
-
-          scripts/vault/sign-ci-ssh-key.sh \
-            "$SSH_KEY.pub" \
-            "$VM_USER" \
-            "30m" \
-            "homelab-ci" \
-            > "$VM_CERT"
-
-          chmod 0600 "$SSH_KEY"
-
-          chmod 0644 \
-            "$SSH_KEY.pub" \
-            "$CONTROL_CERT" \
-            "$VM_CERT"
-
-          ssh-keygen \
-            -Lf \
-            "$CONTROL_CERT" \
-            >/dev/null
-
-          ssh-keygen \
-            -Lf \
-            "$VM_CERT" \
-            >/dev/null
 
           CONTROL_SSH=(
             ssh
@@ -531,22 +435,13 @@ jobs:
                       -o UserKnownHostsFile=${KNOWN_HOSTS}
           INVENTORY_EOF
 
-          echo "Waiting for ${VM_NAME} at ${VM_IP} to become reachable through Tailscale..."
+          echo "Waiting for ${VM_NAME} at ${VM_IP} through Tailscale..."
 
           ansible \
             -i "$INVENTORY" \
             k3s_workers \
             -m ansible.builtin.wait_for_connection \
             -a "timeout=600 sleep=5 connect_timeout=10"
-
-          echo "Waiting for cloud-init to finish..."
-
-          ansible \
-            -i "$INVENTORY" \
-            k3s_workers \
-            --become \
-            -m ansible.builtin.command \
-            -a "cloud-init status --wait"
 
           ansible-playbook \
             -i "$INVENTORY" \
@@ -559,8 +454,9 @@ jobs:
             "$K3S_NODE_NAME"
 
           echo
-          echo "AWS K3s worker deployment completed."
+          echo "OCI K3s worker deployment completed."
           echo "VM: $VM_NAME"
+          echo "OCI instance: $INSTANCE_ID"
           echo "K3s node: $K3S_NODE_NAME"
           echo "Tailscale IP: $VM_IP"
           echo
@@ -572,10 +468,9 @@ jobs:
         shell: bash
         run: |
           rm -f \
-            "$RUNNER_TEMP/aws-vm" \
-            "$RUNNER_TEMP/aws-vm.pub" \
-            "$RUNNER_TEMP/aws-control-cert.pub" \
-            "$RUNNER_TEMP/aws-vm-cert.pub" \
-            "$RUNNER_TEMP/aws-inventory.yml" \
-            "$RUNNER_TEMP/aws-known-hosts" \
-            "$RUNNER_TEMP/aws-ssm-bootstrap.sh"
+            "$RUNNER_TEMP/oci-vm" \
+            "$RUNNER_TEMP/oci-vm.pub" \
+            "$RUNNER_TEMP/oci-control-cert.pub" \
+            "$RUNNER_TEMP/oci-vm-cert.pub" \
+            "$RUNNER_TEMP/oci-inventory.yml" \
+            "$RUNNER_TEMP/oci-known-hosts"
