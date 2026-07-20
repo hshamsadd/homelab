@@ -327,6 +327,29 @@ jobs:
 
           export DEBIAN_FRONTEND=noninteractive
 
+          echo "Waiting for apt/dpkg locks to become available..."
+
+          for attempt in $(seq 1 60); do
+            if ! fuser \
+              /var/lib/dpkg/lock-frontend \
+              /var/lib/dpkg/lock \
+              /var/lib/apt/lists/lock \
+              /var/cache/apt/archives/lock \
+              >/dev/null 2>&1
+            then
+              echo "apt/dpkg locks are available."
+              break
+            fi
+
+            if [[ "$attempt" -eq 60 ]]; then
+              echo "ERROR: apt/dpkg remained locked for too long." >&2
+              exit 1
+            fi
+
+            echo "apt/dpkg is still busy (${attempt}/60). Waiting 5 seconds..."
+            sleep 5
+          done
+
           apt-get update
 
           apt-get install -y \
