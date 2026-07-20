@@ -2,13 +2,9 @@ apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: argocd-server-ingress
-  namespace: argocd # <-- Add this line to force it out of the production namespace
+  namespace: argocd
   annotations:
     cert-manager.io/cluster-issuer: "local-homelab-issuer"
-    # Rule 1: Tell Traefik the backend is talking HTTPS over port 443
-    traefik.ingress.kubernetes.io/service.serversscheme: https
-    # Rule 2: Force Traefik to accept ArgoCD's internal self-signed backend cert
-    traefik.ingress.kubernetes.io/service.serverstransport: argocd-server-transport@kubernetescrd
 spec:
   ingressClassName: traefik
   tls:
@@ -25,4 +21,33 @@ spec:
               service:
                 name: argocd-server
                 port:
-                  number: 443 # Traefik already routes websecure automatically via the IngressClass
+                  number: 80
+
+# apiVersion: networking.k8s.io/v1
+# kind: Ingress
+# metadata:
+#   name: argocd-server-ingress
+#   namespace: argocd # <-- Add this line to force it out of the production namespace
+#   annotations:
+#     cert-manager.io/cluster-issuer: "local-homelab-issuer"
+#     # Rule 1: Tell Traefik the backend is talking HTTPS over port 443
+#     traefik.ingress.kubernetes.io/service.serversscheme: https
+#     # Rule 2: Force Traefik to accept ArgoCD's internal self-signed backend cert
+#     traefik.ingress.kubernetes.io/service.serverstransport: argocd-server-transport@kubernetescrd
+# spec:
+#   ingressClassName: traefik
+#   tls:
+#     - hosts:
+#         - argocd.home
+#       secretName: argocd-server-tls-cert
+#   rules:
+#     - host: argocd.home
+#       http:
+#         paths:
+#           - path: /
+#             pathType: Prefix
+#             backend:
+#               service:
+#                 name: argocd-server
+#                 port:
+#                   number: 443 # Traefik already routes websecure automatically via the IngressClass
