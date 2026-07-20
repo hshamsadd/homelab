@@ -1,52 +1,41 @@
 # variables.tf
-
 ############################################
 # Compartments
 ############################################
 variable "compartment_id" {
-  description = "The OCID of the parent compartment where the resources will be created."
   type        = string
+  description = "The OCID of the parent compartment where the resources will be created."
 }
 
 variable "tenancy_ocid" {
-  description = "The OCID of the tenancy where the resources will be created."
   type        = string
+  description = "The OCID of the tenancy where the resources will be created."
 }
 
 variable "user_ocid" {
-  description = "The OCID of the user."
   type        = string
+  description = "The OCID of the user."
 }
 
 variable "fingerprint" {
-  description = "The fingerprint of the API key."
   type        = string
+  description = "The fingerprint of the API key."
 }
 
 variable "region" {
+  type        = string
   description = "The region where the resources will be created."
-  type        = string
-}
-
-variable "private_key_path" {
-  description = "The path to the private key file."
-  type        = string
-}
-
-variable "ssh_authorized_keys_path" {
-  description = "The path to the public key file."
-  type        = string
 }
 
 variable "compartment_name" {
-  description = "Compartment Name"
   type        = string
+  description = "Compartment Name"
   default     = "hushamsadd"
 }
 
 variable "compartment_description" {
-  description = "The root Compartment of the tenancy. It is the parent of all other compartments in the tenancy. For more information, see Root Compartment (https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingcompartments.htm#rootcompartment)."
   type        = string
+  description = "The root Compartment of the tenancy. It is the parent of all other compartments in the tenancy. For more information, see Root Compartment (https://docs.oracle.com/en-us/iaas/Content/Identity/Tasks/managingcompartments.htm#rootcompartment)."
   default     = "dev-compartment description"
 }
 
@@ -119,7 +108,7 @@ variable "cloud-node-02" {
     shape : {
       name          = "VM.Standard.A1.Flex"
       ocpus         = 1
-      memory_in_gbs = 4
+      memory_in_gbs = 2
     }
   }
 }
@@ -127,15 +116,24 @@ variable "cloud-node-02" {
 ############################################
 # Sensitive Variables
 ############################################
-
 variable "tailscale_auth_key" {
-  description = "Ephemeral, reusable Tailscale auth key to join the mesh"
   type        = string
+  description = "Ephemeral, reusable Tailscale auth key to join the mesh"
   sensitive   = true
 }
 
-variable "k3s_node_token" {
-  description = "The K3s cluster node token to join the control plane"
+variable "private_key_path" {
   type        = string
+  description = "The path to the private key file."
+}
+
+variable "ssh_authorized_keys_path" {
+  type        = string
+  description = "The path to the public key file."
+}
+
+variable "k3s_node_token" {
+  type        = string
+  description = "The K3s cluster node token to join the control plane"
   sensitive   = true
 }

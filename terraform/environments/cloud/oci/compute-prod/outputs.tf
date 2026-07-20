@@ -1,5 +1,4 @@
 # outputs.tf
-
 output "compartment_id" {
   value       = var.compartment_id
   description = "The OCID of the compartment being deployed into."
