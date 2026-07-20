@@ -329,7 +329,7 @@ jobs:
 
           echo "Waiting for apt/dpkg locks to become available..."
 
-          for attempt in $(seq 1 60); do
+          for attempt in \$(seq 1 60); do
             if ! fuser \
               /var/lib/dpkg/lock-frontend \
               /var/lib/dpkg/lock \
@@ -341,12 +341,12 @@ jobs:
               break
             fi
 
-            if [[ "$attempt" -eq 60 ]]; then
+            if [[ "\$attempt" -eq 60 ]]; then
               echo "ERROR: apt/dpkg remained locked for too long." >&2
               exit 1
             fi
 
-            echo "apt/dpkg is still busy (${attempt}/60). Waiting 5 seconds..."
+            echo "apt/dpkg is still busy (\${attempt}/60). Waiting 5 seconds..."
             sleep 5
           done
 
