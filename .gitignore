@@ -139,7 +139,7 @@ ansible/terraform_vm_key.pub
 ansible/inventory.json
 terraform.tfstate.backup
 .terraform/
-.md
+#.md
 .tfvars
 
 

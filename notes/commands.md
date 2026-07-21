@@ -47,9 +47,30 @@ majd jadal haq
 
 
 
+kubectl port-forward svc/argocd-server -n argocd 8080:443
+vault login -method=userpass username=zshamsadd
+ssh-keygen -R worker-3
 
 
 
+cat > vault/policies/kubernetes-testing-secrets.hcl <<'EOF'
+path "kv/data/kubernetes/testing/*" {
+  capabilities = ["read"]
+}
+
+path "kv/metadata/kubernetes/testing/*" {
+  capabilities = ["read", "list"]
+}
+EOF
+
+
+vault write \
+  auth/kubernetes/role/kubernetes-gitops-system \
+  bound_service_account_names=vault-secrets \
+  bound_service_account_namespaces=gitops-system \
+  token_policies=kubernetes-gitops-system-secrets \
+  audience=vault \
+  ttl=1h
 
 
 
