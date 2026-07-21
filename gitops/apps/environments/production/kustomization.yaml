@@ -26,4 +26,5 @@ resources:
   - ./patches/cloudnative-pg/scheduled-backup.yaml
   - ./patches/minio/minio-bucket-job.yaml
 
-patches: []
+patches:
+  - path: ./patches/pgadmin/pgadmin-vault-secret.yaml
