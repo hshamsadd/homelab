@@ -12,10 +12,10 @@ spec:
             - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:
-                  name: cnpg-minio-staging-credentials # Fixed secret name
+                  name: cnpg-minio-staging-credentials-vault # Fixed secret name
                   key: ACCESS_KEY_ID
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cnpg-minio-staging-credentials # Fixed secret name
+                  name: cnpg-minio-staging-credentials-vault # Fixed secret name
                   key: SECRET_ACCESS_KEY

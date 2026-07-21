@@ -10,10 +10,10 @@ spec:
     endpointURL: http://minio.production.svc.cluster.local:9000
     s3Credentials:
       accessKeyId:
-        name: cnpg-minio-production-fallback
+        name: cnpg-minio-production-fallback-vault
         key: ACCESS_KEY_ID
       secretAccessKey:
-        name: cnpg-minio-production-fallback
+        name: cnpg-minio-production-fallback-vault
         key: SECRET_ACCESS_KEY
     wal:
       compression: gzip
