@@ -28,9 +28,10 @@ patches:
   - path: ./patches/minio/minio-staging-patch.yaml
   - path: ./patches/minio/minio-ingress-patch.yaml
   - path: ./patches/minio/minio-pvc-patch.yaml
-  - path: ./patches/pgadmin/pgadmin-ingress-patch.yaml
   - path: ./patches/wallabag/wallabag-env.yaml
   - path: ./patches/wallabag/wallabag-ingress.yaml
+  - path: ./patches/pgadmin/pgadmin-ingress-patch.yaml
+  - path: ./patches/pgadmin/pgadmin-vault-secret.yaml
   # ------------------------------- #
   # - path: cloudnative-pg/disable-wal-archiver.yaml
   #   target:
