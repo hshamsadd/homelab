@@ -27,4 +27,5 @@ resources:
   - ./patches/minio/minio-bucket-job.yaml
 
 patches:
+  - path: ./patches/wallabag/wallabag-vault-secret.yaml
   - path: ./patches/pgadmin/pgadmin-vault-secret.yaml

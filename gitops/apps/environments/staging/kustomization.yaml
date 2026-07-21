@@ -24,6 +24,7 @@ resources:
   - ./patches/cloudnative-pg/production-backups-store.yaml
 
 patches:
+  - path: ./patches/wallabag/wallabag-vault-secret.yaml
   # 6. Apply all staging modifications over the base
   - path: ./patches/minio/minio-staging-patch.yaml
   - path: ./patches/minio/minio-ingress-patch.yaml
