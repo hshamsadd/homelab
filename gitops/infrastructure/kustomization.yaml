@@ -5,3 +5,4 @@ resources:
   - networking/external-docker-bridge.yaml
   - cert-manager/local-issuer.yaml
   - sealed-secrets
+  - vault-secrets-operator
