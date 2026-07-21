@@ -6,3 +6,4 @@ resources:
   - app-infrastructure.yaml
   - app-staging.yaml
   - app-production.yaml
+  - vault-secrets-operator.yaml
