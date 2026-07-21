@@ -2,7 +2,7 @@ apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
   name: central-postgres
-  namespace: staging
+  #namespace: staging
 spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:17-standard-trixie

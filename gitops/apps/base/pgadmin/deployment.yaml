@@ -22,7 +22,8 @@ spec:
             - containerPort: 80
           envFrom:
             - secretRef:
-                name: pgadmin-credentials
+                #name: pgadmin-credentials
+                name: pgadmin-credentials-vault
           resources:
             requests:
               cpu: 100m
