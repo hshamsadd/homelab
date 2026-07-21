@@ -190,3 +190,8 @@ tmp-secrets/
 
 # Runtime-generated Ansible inventory
 /ansible/inventory.json
+
+# Safe Vault Secrets Operator manifests; these contain references, not secret values.
+!**/secrets/vault-serviceaccount.yaml
+!**/secrets/vault-auth.yaml
+!**/secrets/vault-static-secret-*.yaml
