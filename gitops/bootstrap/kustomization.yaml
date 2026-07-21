@@ -7,3 +7,4 @@ resources:
   - app-staging.yaml
   - app-production.yaml
   - vault-secrets-operator.yaml
+  - ./argocd-repository
