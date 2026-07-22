@@ -195,3 +195,6 @@ tmp-secrets/
 !**/secrets/vault-serviceaccount.yaml
 !**/secrets/vault-auth.yaml
 !**/secrets/vault-static-secret-*.yaml
+
+# Local plaintext credentials
+repo-secret.yaml
