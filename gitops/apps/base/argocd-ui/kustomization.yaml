@@ -3,4 +3,6 @@ kind: Kustomization
 
 resources:
   - configmap.yaml
+  - argocd-cm.yaml
+  - argocd-rbac-cm.yaml
   - ingress.yaml

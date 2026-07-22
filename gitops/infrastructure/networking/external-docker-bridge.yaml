@@ -5,8 +5,8 @@ metadata:
   namespace: default
 spec:
   ports:
-  - port: 5001
-    targetPort: 5001
+    - port: 5001
+      targetPort: 5001
 ---
 apiVersion: v1
 kind: Endpoints
@@ -26,8 +26,8 @@ metadata:
   namespace: default
 spec:
   ports:
-  - port: 9000
-    targetPort: 9000
+    - port: 9000
+      targetPort: 9000
 ---
 apiVersion: v1
 kind: Endpoints
@@ -47,8 +47,8 @@ metadata:
   namespace: default
 spec:
   ports:
-  - port: 80
-    targetPort: 8701
+    - port: 80
+      targetPort: 8701
 ---
 apiVersion: v1
 kind: Endpoints
@@ -69,33 +69,33 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: dockge.home
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: dockge
-            port:
-              number: 5001
-  - host: portainer.home
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: portainer
-            port:
-              number: 9000
-  - host: qbittorrent.home
-    http:
-      paths:
-      - path: /
-        pathType: Prefix
-        backend:
-          service:
-            name: qbittorrent
-            port:
-              number: 80
+    - host: dockge.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: dockge
+                port:
+                  number: 5001
+    - host: portainer.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: portainer
+                port:
+                  number: 9000
+    - host: qbittorrent.home
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: qbittorrent
+                port:
+                  number: 80
