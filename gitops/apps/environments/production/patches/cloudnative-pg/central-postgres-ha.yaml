@@ -1,0 +1,55 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: central-postgres-ha
+spec:
+  instances: 2
+
+  imageName: ghcr.io/cloudnative-pg/postgresql:17-standard-trixie
+
+  resources:
+    requests:
+      memory: "512Mi"
+      cpu: "500m"
+    limits:
+      memory: "1Gi"
+      cpu: "1"
+
+  storage:
+    size: 15Gi
+    storageClass: local-path
+
+  affinity:
+    enablePodAntiAffinity: true
+    topologyKey: kubernetes.io/hostname
+    podAntiAffinityType: required
+    nodeSelector:
+      cnpg-ha: "true"
+
+  bootstrap:
+    initdb:
+      import:
+        type: monolith
+        databases:
+          - wallabag
+        roles:
+          - wallabag_user
+        source:
+          externalCluster: central-postgres-source
+
+  externalClusters:
+    - name: central-postgres-source
+      connectionParameters:
+        host: central-postgres-rw.production.svc.cluster.local
+        user: cnpg_migration
+        dbname: postgres
+        sslmode: require
+      password:
+        name: cnpg-migration-source
+        key: password
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: minio-postgres-backups

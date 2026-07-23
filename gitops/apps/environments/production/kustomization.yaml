@@ -21,6 +21,7 @@ resources:
 
   # 5. Call in and append production-specific objects (Jobs, Backups)
   - ./patches/minio/minio-local-pv.yaml
+  - ./patches/cloudnative-pg/central-postgres-ha.yaml
   - ./patches/cloudnative-pg/barman-objectstore.yaml
   - ./patches/cloudnative-pg/manual-backup.yaml
   - ./patches/cloudnative-pg/scheduled-backup.yaml
