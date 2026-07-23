@@ -1,0 +1,6 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: central-postgres
+  annotations:
+    argocd.argoproj.io/sync-options: Prune=false
