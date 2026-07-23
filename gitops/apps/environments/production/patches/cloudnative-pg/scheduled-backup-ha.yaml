@@ -1,0 +1,14 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: ScheduledBackup
+metadata:
+  name: central-postgres-ha-nightly-backup
+# namespace: production
+spec:
+  schedule: "0 0 3 * * *"
+  immediate: true
+  backupOwnerReference: cluster
+  method: plugin
+  pluginConfiguration:
+    name: barman-cloud.cloudnative-pg.io
+  cluster:
+    name: central-postgres-ha

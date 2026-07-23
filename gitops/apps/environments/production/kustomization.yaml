@@ -25,6 +25,7 @@ resources:
   - ./patches/cloudnative-pg/barman-objectstore.yaml
   - ./patches/cloudnative-pg/manual-backup.yaml
   - ./patches/cloudnative-pg/scheduled-backup.yaml
+  - ./patches/cloudnative-pg/scheduled-backup-ha.yaml
   - ./patches/minio/minio-bucket-job.yaml
 
 patches:
