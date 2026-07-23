@@ -9,7 +9,6 @@ resources:
   - namespace.yaml
 
   # 3. Call in the base apps (fixed paths to match your pristine gitops/apps/base structure)
-  - ../../base/cloudnative-pg
   - ../../base/minio
   - ../../base/pgadmin
   - ../../base/redis
@@ -29,7 +28,6 @@ resources:
   - ./patches/minio/minio-bucket-job.yaml
 
 patches:
-  - path: ./patches/cloudnative-pg/central-postgres-retirement-guard.yaml
   - path: ./patches/minio/minio-vault-secret.yaml
   - path: ./patches/wallabag/wallabag-vault-secret.yaml
   - path: ./patches/pgadmin/pgadmin-vault-secret.yaml
