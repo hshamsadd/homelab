@@ -5,6 +5,7 @@ metadata:
 # namespace: production
 spec:
   schedule: "0 0 3 * * *"
+  suspend: true
   backupOwnerReference: cluster
   method: plugin
   pluginConfiguration:
