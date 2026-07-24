@@ -8,6 +8,27 @@ defaultRules:
 
 alertmanager:
   enabled: true
+  config:
+    global:
+      smtp_smarthost: smtp.gmail.com:587
+      smtp_from: hushamadd@gmail.com
+      smtp_auth_username: hushamadd@gmail.com
+      smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-email-credentials-vault/SMTP_PASSWORD
+      smtp_require_tls: true
+    route:
+      receiver: email
+      group_by:
+        - namespace
+        - alertname
+      group_wait: 30s
+      group_interval: 5m
+      repeat_interval: 4h
+    receivers:
+      - name: email
+        email_configs:
+          - to: hushamadd@gmail.com
+            send_resolved: true
+
   alertmanagerSpec:
     retention: 120h
     storage:
@@ -104,23 +125,3 @@ prometheus-node-exporter:
       cpu: 250m
       memory: 256Mi
 
-  config:
-    global:
-      smtp_smarthost: smtp.gmail.com:587
-      smtp_from: hushamadd@gmail.com
-      smtp_auth_username: hushamadd@gmail.com
-      smtp_auth_password_file: /etc/alertmanager/secrets/alertmanager-email-credentials-vault/SMTP_PASSWORD
-      smtp_require_tls: true
-    route:
-      receiver: email
-      group_by:
-        - namespace
-        - alertname
-      group_wait: 30s
-      group_interval: 5m
-      repeat_interval: 4h
-    receivers:
-      - name: email
-        email_configs:
-          - to: hushamadd@gmail.com
-            send_resolved: true
