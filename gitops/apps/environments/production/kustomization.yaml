@@ -22,8 +22,6 @@ resources:
   - ./patches/minio/minio-local-pv.yaml
   - ./patches/cloudnative-pg/central-postgres-ha.yaml
   - ./patches/cloudnative-pg/barman-objectstore.yaml
-  - ./patches/cloudnative-pg/manual-backup.yaml
-  - ./patches/cloudnative-pg/scheduled-backup.yaml
   - ./patches/cloudnative-pg/scheduled-backup-ha.yaml
   - ./patches/minio/minio-bucket-job.yaml
 
