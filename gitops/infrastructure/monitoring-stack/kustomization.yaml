@@ -7,3 +7,4 @@ resources:
   - vault-static-secret-grafana-admin.yaml
   - vault-static-secret-alertmanager-email.yaml
   - grafana-ingress.yaml
+  - blackbox-exporter.yaml
