@@ -4,3 +4,4 @@ kind: Kustomization
 resources:
   - vault-serviceaccount.yaml
   - vault-auth.yaml
+  - vault-static-secret-grafana-admin.yaml
