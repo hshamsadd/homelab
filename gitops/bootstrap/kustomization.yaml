@@ -4,6 +4,7 @@ kind: Kustomization
 resources:
   - root-application.yaml
   - app-infrastructure.yaml
+  - app-monitoring.yaml
   - app-staging.yaml
   - app-production.yaml
   - vault-secrets-operator.yaml
