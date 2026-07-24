@@ -1,9 +1,10 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Cluster
 metadata:
-  name: central-postgres-ha
+  name: central-postgres-ha-recovery
+  namespace: production
 spec:
-  instances: 2
+  instances: 1
 
   imageName: ghcr.io/cloudnative-pg/postgresql:17-standard-trixie
 
@@ -20,9 +21,7 @@ spec:
     storageClass: local-path
 
   affinity:
-    enablePodAntiAffinity: true
-    topologyKey: kubernetes.io/hostname
-    podAntiAffinityType: required
+    enablePodAntiAffinity: false
     nodeSelector:
       cnpg-ha: "true"
 
@@ -30,6 +29,8 @@ spec:
     recovery:
       database: wallabag
       owner: wallabag_user
+      secret:
+        name: cnpg-wallabag-recovery-credentials
       source: central-postgres-ha-backup
 
   externalClusters:
@@ -39,9 +40,3 @@ spec:
         parameters:
           barmanObjectName: minio-postgres-backups
           serverName: central-postgres-ha
-
-  plugins:
-    - name: barman-cloud.cloudnative-pg.io
-      isWALArchiver: true
-      parameters:
-        barmanObjectName: minio-postgres-backups
