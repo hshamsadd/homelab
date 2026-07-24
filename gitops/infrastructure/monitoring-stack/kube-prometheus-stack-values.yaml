@@ -28,6 +28,7 @@ alertmanager:
         email_configs:
           - to: hushamadd@gmail.com
             send_resolved: true
+      - name: "null"
 
   alertmanagerSpec:
     retention: 120h
