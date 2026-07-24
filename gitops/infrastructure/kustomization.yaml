@@ -7,3 +7,4 @@ resources:
   - networking/external-docker-bridge.yaml
   - cert-manager/local-issuer.yaml
   - vault-secrets-operator
+  - monitoring-stack
