@@ -1,0 +1,66 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: postgres-backups-dr-mirror
+  namespace: production
+spec:
+  schedule: "30 3 * * *"
+  timeZone: "Etc/UTC"
+  concurrencyPolicy: Forbid
+  successfulJobsHistoryLimit: 3
+  failedJobsHistoryLimit: 3
+  jobTemplate:
+    spec:
+      backoffLimit: 2
+      ttlSecondsAfterFinished: 86400
+      template:
+        metadata:
+          labels:
+            app.kubernetes.io/name: postgres-backups-dr-mirror
+        spec:
+          restartPolicy: OnFailure
+          containers:
+            - name: mirror
+              image: quay.io/minio/mc:latest
+              imagePullPolicy: IfNotPresent
+              env:
+                - name: MINIO_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: cnpg-minio-production-credentials-vault
+                      key: ACCESS_KEY_ID
+                - name: MINIO_SECRET_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: cnpg-minio-production-credentials-vault
+                      key: SECRET_ACCESS_KEY
+                - name: OCI_ACCESS_KEY_ID
+                  valueFrom:
+                    secretKeyRef:
+                      name: oci-postgres-dr-credentials-vault
+                      key: ACCESS_KEY_ID
+                - name: OCI_SECRET_ACCESS_KEY
+                  valueFrom:
+                    secretKeyRef:
+                      name: oci-postgres-dr-credentials-vault
+                      key: SECRET_ACCESS_KEY
+                - name: OCI_S3_ENDPOINT
+                  valueFrom:
+                    secretKeyRef:
+                      name: oci-postgres-dr-credentials-vault
+                      key: S3_ENDPOINT
+                - name: OCI_BUCKET
+                  valueFrom:
+                    secretKeyRef:
+                      name: oci-postgres-dr-credentials-vault
+                      key: BUCKET
+              command:
+                - /bin/sh
+                - -ec
+              args:
+                - |
+                  mc alias set local http://minio.production.svc.cluster.local:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY" --api S3v4
+                  mc alias set oci "$OCI_S3_ENDPOINT" "$OCI_ACCESS_KEY_ID" "$OCI_SECRET_ACCESS_KEY" --api S3v4 --path on
+                  mc mirror --overwrite --preserve local/postgres-backups "oci/${OCI_BUCKET}"
+                  mc du local/postgres-backups
+                  mc du "oci/${OCI_BUCKET}"
