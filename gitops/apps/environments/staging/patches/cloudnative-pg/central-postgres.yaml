@@ -18,6 +18,8 @@ spec:
 
   bootstrap:
     recovery:
+      database: wallabag
+      owner: wallabag_user
       source: central-postgres-production
 
   # Register the plugin globally
@@ -31,6 +33,7 @@ spec:
         name: barman-cloud.cloudnative-pg.io
         parameters:
           barmanObjectName: production-postgres-backups
+          serverName: central-postgres-ha
         # ------------------------------------------------------------------------------------------------------------ #          
 
         # apiVersion: postgresql.cnpg.io/v1
