@@ -53,36 +53,33 @@ Both entry points:
 - have no `spec.plugins` section;
 - cannot write WAL into the recovery source lineage.
 
-## Required credential bridge
+## Required Vault-managed CNPG credential
 
-The recovery manifests reference the runtime-only basic-auth Secret:
+The active Cluster and both recovery entry points reference:
 
-`production/cnpg-wallabag-recovery-credentials`
+`production/cnpg-wallabag-credentials-vault`
 
-Create it from the existing Vault-managed Wallabag Secret without decoding or
-printing the password:
+This Secret is created by Vault Secrets Operator from:
 
-    kubectl -n production get secret wallabag-credentials-vault -o json |
-      jq '{
-        apiVersion: "v1",
-        kind: "Secret",
-        metadata: {
-          name: "cnpg-wallabag-recovery-credentials",
-          namespace: "production"
-        },
-        type: "kubernetes.io/basic-auth",
-        data: {
-          username: .data.DATABASE_USER,
-          password: .data.DATABASE_PASSWORD
-        }
-      }' |
-      kubectl create -f -
+- Vault mount: `kv`
+- Vault path: `kubernetes/production/wallabag`
+- Vault authentication: `production-vault-auth`
+- Kubernetes Secret type: `kubernetes.io/basic-auth`
+- Username key: `username`
+- Password key: `password`
 
-Never commit this Secret or its values to Git.
+The Vault source is the same source used by
+`production/wallabag-credentials-vault`. The CNPG projection exposes only the
+basic-auth keys required by CloudNativePG. Credential values remain in Vault
+and are never stored in Git.
+
+This Secret is persistent production desired state. Do not delete it after a
+recovery drill. Confirm that its VaultStaticSecret is Ready before creating
+either recovery Cluster.
 
 ## Recovery drill
 
-Create the credential bridge, then run:
+Confirm the Vault-managed CNPG credential is Ready, then run:
 
     kubectl apply -k gitops/recovery/production/drill
 
@@ -108,10 +105,6 @@ After the drill:
       cluster central-postgres-ha-recovery \
       --wait=true
 
-    kubectl -n production delete \
-      secret cnpg-wallabag-recovery-credentials \
-      --wait=true
-
 Verify that its pod, PVC, dynamic PV, Services and temporary authentication Job
 are also absent.
 
@@ -125,7 +118,7 @@ Before recovery:
 4. Restore and verify Vault Secrets Operator and
    `wallabag-credentials-vault`.
 5. Confirm `server` and `worker-2` have `cnpg-ha=true`.
-6. Create `cnpg-wallabag-recovery-credentials`.
+6. Confirm `cnpg-wallabag-credentials-vault` exists, is Ready, and contains username `wallabag_user`.
 
 Start recovery:
 
@@ -191,7 +184,7 @@ Verified on 2026-07-24 UTC.
 - Production remained healthy at two of two instances
 - Production pod UIDs, nodes and restart counts remained unchanged
 - Wallabag remained HTTP 302
-- Temporary Cluster, pod, PVC, PV, Services, Job and Secret were removed
+- Temporary Cluster, pod, PVC, PV, Services, Job and the then-runtime-only credential bridge Secret were removed
 
 CloudNativePG recovery documentation:
 

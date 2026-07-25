@@ -30,6 +30,8 @@ spec:
     recovery:
       database: wallabag
       owner: wallabag_user
+      secret:
+        name: cnpg-wallabag-credentials-vault
       source: central-postgres-ha-backup
 
   externalClusters:
