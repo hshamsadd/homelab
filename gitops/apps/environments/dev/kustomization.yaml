@@ -11,6 +11,7 @@ resources:
   - ../../base/pgadmin
   - ../../base/redis
   - ../../base/wallabag
+  - ../../base/health-ingester
   - secrets
   - patches/minio/minio-local-pv.yaml
   - patches/minio/minio-bucket-job.yaml
@@ -89,6 +90,16 @@ patches:
                       operator: In
                       values:
                         - worker-1
+
+configMapGenerator:
+  - name: health-ingester-config
+    literals:
+      - LISTEN_ADDRESS=:8080
+      - DATABASE_HOST=central-postgres-dev-rw.dev.svc.cluster.local
+      - DATABASE_PORT=5432
+      - DATABASE_NAME=health_dev
+      - DATABASE_SSLMODE=disable
+      - GRAFANA_DATABASE_ROLE=health_grafana_dev_user
 
 images:
   - name: wallabag/wallabag

@@ -1,0 +1,107 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: health-ingester
+  labels:
+    app.kubernetes.io/name: health-ingester
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: health-ingester
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: health-ingester
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65532
+        runAsGroup: 65532
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: health-ingester
+          image: ghcr.io/hshamsadd/health-ingester@sha256:d982b8635a2a151849c1c706871de6b4e04fa63d1416ee1eb03633dc50866582
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          env:
+            - name: LISTEN_ADDRESS
+              valueFrom:
+                configMapKeyRef:
+                  name: health-ingester-config
+                  key: LISTEN_ADDRESS
+            - name: DATABASE_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: health-ingester-config
+                  key: DATABASE_HOST
+            - name: DATABASE_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: health-ingester-config
+                  key: DATABASE_PORT
+            - name: DATABASE_NAME
+              valueFrom:
+                configMapKeyRef:
+                  name: health-ingester-config
+                  key: DATABASE_NAME
+            - name: DATABASE_SSLMODE
+              valueFrom:
+                configMapKeyRef:
+                  name: health-ingester-config
+                  key: DATABASE_SSLMODE
+            - name: GRAFANA_DATABASE_ROLE
+              valueFrom:
+                configMapKeyRef:
+                  name: health-ingester-config
+                  key: GRAFANA_DATABASE_ROLE
+            - name: DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: health-ingester-credentials-vault
+                  key: DATABASE_USER
+            - name: DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: health-ingester-credentials-vault
+                  key: DATABASE_PASSWORD
+            - name: WEBHOOK_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: health-ingester-credentials-vault
+                  key: WEBHOOK_TOKEN
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 2
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+            timeoutSeconds: 3
+            failureThreshold: 6
+          resources:
+            requests:
+              cpu: 25m
+              memory: 32Mi
+            limits:
+              cpu: 250m
+              memory: 128Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            readOnlyRootFilesystem: true
+            capabilities:
+              drop:
+                - ALL
+      terminationGracePeriodSeconds: 30
