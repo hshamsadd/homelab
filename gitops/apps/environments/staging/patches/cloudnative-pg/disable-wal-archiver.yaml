@@ -1,6 +1,0 @@
-- op: replace
-  path: /spec/plugins/0/enabled
-  value: false
-- op: replace
-  path: /spec/plugins/0/isWALArchiver
-  value: false
