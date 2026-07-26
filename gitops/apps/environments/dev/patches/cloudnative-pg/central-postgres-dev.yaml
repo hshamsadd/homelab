@@ -1,0 +1,39 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: central-postgres-dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  instances: 1
+  imageName: ghcr.io/cloudnative-pg/postgresql:17-standard-trixie
+
+  resources:
+    requests:
+      cpu: 500m
+      memory: 512Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
+
+  storage:
+    size: 15Gi
+    storageClass: local-path
+
+  affinity:
+    enablePodAntiAffinity: false
+    nodeSelector:
+      kubernetes.io/hostname: worker-2
+
+  bootstrap:
+    initdb:
+      database: wallabag_dev
+      owner: wallabag_dev_user
+      secret:
+        name: cnpg-wallabag-dev-credentials-vault
+
+  plugins:
+    - name: barman-cloud.cloudnative-pg.io
+      isWALArchiver: true
+      parameters:
+        barmanObjectName: dev-postgres-backups

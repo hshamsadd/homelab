@@ -1,0 +1,31 @@
+apiVersion: barmancloud.cnpg.io/v1
+kind: ObjectStore
+metadata:
+  name: dev-postgres-backups
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  configuration:
+    destinationPath: s3://postgres-backups-dev/
+    endpointURL: http://minio.dev.svc.cluster.local:9000
+    s3Credentials:
+      accessKeyId:
+        name: cnpg-minio-dev-credentials-vault
+        key: ACCESS_KEY_ID
+      secretAccessKey:
+        name: cnpg-minio-dev-credentials-vault
+        key: SECRET_ACCESS_KEY
+    wal:
+      compression: gzip
+      maxParallel: 2
+    data:
+      compression: gzip
+  instanceSidecarConfiguration:
+    resources:
+      requests:
+        cpu: 50m
+        memory: 128Mi
+      limits:
+        cpu: 250m
+        memory: 256Mi
+  retentionPolicy: "7d"

@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: dev-compute-guardrails
+spec:
+  hard:
+    requests.cpu: "3"
+    requests.memory: 6Gi
+    limits.cpu: "6"
+    limits.memory: 10Gi
+    pods: "20"

@@ -1,0 +1,95 @@
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+
+namespace: dev
+
+resources:
+  - namespace.yaml
+  - resourcequota.yaml
+  - limitrange.yaml
+  - ../../base/minio
+  - ../../base/pgadmin
+  - ../../base/redis
+  - ../../base/wallabag
+  - secrets
+  - patches/minio/minio-local-pv.yaml
+  - patches/minio/minio-bucket-job.yaml
+  - patches/cloudnative-pg/barman-objectstore.yaml
+  - patches/cloudnative-pg/central-postgres-dev.yaml
+  - patches/cloudnative-pg/scheduled-backup-dev.yaml
+
+patches:
+  - path: patches/minio/minio-dev-patch.yaml
+  - path: patches/minio/minio-ingress-patch.yaml
+  - path: patches/minio/minio-pvc-patch.yaml
+  - path: patches/redis/redis-resources.yaml
+  - path: patches/wallabag/wallabag-env.yaml
+  - path: patches/wallabag/wallabag-vault-secret.yaml
+  - path: patches/wallabag/wallabag-ingress.yaml
+  - path: patches/pgadmin/pgadmin-ingress-patch.yaml
+  - path: patches/pgadmin/pgadmin-vault-secret.yaml
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: wallabag
+    patch: |-
+      - op: remove
+        path: /spec/template/spec/nodeSelector
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - worker-1
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: pgadmin
+    patch: |-
+      - op: remove
+        path: /spec/template/spec/nodeSelector
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - worker-1
+  - target:
+      group: apps
+      version: v1
+      kind: Deployment
+      name: redis
+    patch: |-
+      - op: remove
+        path: /spec/template/spec/nodeSelector
+      - op: add
+        path: /spec/template/spec/affinity
+        value:
+          nodeAffinity:
+            preferredDuringSchedulingIgnoredDuringExecution:
+              - weight: 100
+                preference:
+                  matchExpressions:
+                    - key: kubernetes.io/hostname
+                      operator: In
+                      values:
+                        - worker-1
+
+images:
+  - name: wallabag/wallabag
+    newName: wallabag/wallabag
+    digest: sha256:4a527e027e0d59e87c14225ef11e005af3d4890374202ad319ce5e63dfc66709

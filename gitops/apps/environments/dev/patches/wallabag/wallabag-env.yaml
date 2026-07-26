@@ -1,0 +1,30 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallabag
+spec:
+  template:
+    spec:
+      containers:
+        - name: wallabag
+          env:
+            - name: SYMFONY_ENV
+              value: "prod" # Force production mode
+            - name: SYMFONY__ENV__DATABASE_NAME
+              value: wallabag_dev
+            - name: SYMFONY__ENV__DOMAIN_NAME
+              value: http://wallabag-dev.home
+            - name: SYMFONY__ENV__DATABASE_HOST
+              value: central-postgres-dev-rw.dev.svc.cluster.local
+            - name: SYMFONY__ENV__REDIS_HOST
+              value: redis.dev.svc.cluster.local
+            - name: SYMFONY__ENV__DATABASE_USER
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-credentials
+                  key: DATABASE_USER
+            - name: SYMFONY__ENV__DATABASE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: wallabag-credentials
+                  key: DATABASE_PASSWORD
