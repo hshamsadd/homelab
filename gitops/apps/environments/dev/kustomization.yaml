@@ -16,6 +16,7 @@ resources:
   - patches/minio/minio-bucket-job.yaml
   - patches/cloudnative-pg/barman-objectstore.yaml
   - patches/cloudnative-pg/central-postgres-dev.yaml
+  - patches/cloudnative-pg/health-database-dev.yaml
   - patches/cloudnative-pg/scheduled-backup-dev.yaml
 
 patches:

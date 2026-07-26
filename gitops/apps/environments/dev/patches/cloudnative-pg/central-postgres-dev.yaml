@@ -8,6 +8,36 @@ spec:
   instances: 1
   imageName: ghcr.io/cloudnative-pg/postgresql:17-standard-trixie
 
+  managed:
+    roles:
+      - name: health_ingester_dev_user
+        ensure: present
+        comment: Health Connect ingestion owner for development
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        inherit: true
+        connectionLimit: 10
+        passwordSecret:
+          name: cnpg-health-ingester-dev-credentials-vault
+
+      - name: health_grafana_dev_user
+        ensure: present
+        comment: Read-only Grafana role for development health data
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        inherit: true
+        connectionLimit: 5
+        passwordSecret:
+          name: cnpg-health-grafana-dev-credentials-vault
+
   resources:
     requests:
       cpu: 500m

@@ -1,0 +1,15 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: health-dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  name: health_dev
+  owner: health_ingester_dev_user
+  ensure: present
+  databaseReclaimPolicy: retain
+  encoding: UTF8
+  allowConnections: true
+  cluster:
+    name: central-postgres-dev
