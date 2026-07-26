@@ -4,7 +4,7 @@ metadata:
   name: central-postgres-ha-nightly-backup
 # namespace: production
 spec:
-  schedule: "0 0 3 * * *"
+  schedule: "0 0 20 * * *"
   immediate: true
   backupOwnerReference: cluster
   method: plugin
