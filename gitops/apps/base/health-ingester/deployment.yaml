@@ -23,7 +23,7 @@ spec:
           type: RuntimeDefault
       containers:
         - name: health-ingester
-          image: ghcr.io/hshamsadd/health-ingester@sha256:e2e1187f47d9ffd0f8b53f0be820d276217d15920cacb3d94ed2e8a4ad65c6f6
+          image: ghcr.io/hshamsadd/health-ingester@sha256:7e35a8fe2ce4f9a1308564f93923e31df6af8019ff8e31a3ab0c28674bd23574
           imagePullPolicy: IfNotPresent
           ports:
             - name: http
