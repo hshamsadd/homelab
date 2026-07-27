@@ -41,10 +41,26 @@ Optional:
 
 ## Grafana views
 
+- `health.record_inventory`
 - `health.activity_events`
 - `health.sleep_sessions`
 - `health.sleep_stages`
+- `health.sleep_stage_totals`
 - `health.measurements`
+- `health.latest_measurements`
+- `health.blood_pressure`
+- `health.skin_temperature`
+- `health.hydration_events`
+- `health.nutrition_events`
+- `health.exercise_sessions`
+- `health.body_composition`
 
 The original records remain available in `health.records`, and complete webhook
 batches remain in `health.ingest_batches`.
+
+`health.measurements` normalizes heart rate, resting heart rate, HRV, oxygen
+saturation, respiratory rate, body and basal temperatures, VO2 max, body fat,
+lean body mass, bone mass, weight, height, blood glucose, and basal metabolic
+rate. `health.body_composition` derives BMI from each weight record and the
+nearest available height measurement. Empty views are expected until a source
+device or app writes the corresponding Health Connect records.

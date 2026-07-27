@@ -34,6 +34,9 @@ const (
 //go:embed migrations/001_init.sql
 var migrationSQL string
 
+//go:embed migrations/002_analytics.sql
+var analyticsMigrationSQL string
+
 var (
 	requestsTotal = prometheus.NewCounterVec(
 		prometheus.CounterOpts{
@@ -229,8 +232,17 @@ func (s *postgresStore) migrate(ctx context.Context) error {
 	}
 	defer tx.Rollback(ctx)
 
-	if _, err := tx.Exec(ctx, migrationSQL); err != nil {
-		return fmt.Errorf("apply schema migration: %w", err)
+	migrations := []struct {
+		name string
+		sql  string
+	}{
+		{name: "001_init", sql: migrationSQL},
+		{name: "002_analytics", sql: analyticsMigrationSQL},
+	}
+	for _, migration := range migrations {
+		if _, err := tx.Exec(ctx, migration.sql); err != nil {
+			return fmt.Errorf("apply migration %s: %w", migration.name, err)
+		}
 	}
 
 	db := pgx.Identifier{s.database}.Sanitize()

@@ -107,3 +107,45 @@ func TestWebhookAcceptsDocumentedPayload(t *testing.T) {
 		t.Fatalf("stored records = %#v", s.got.Records)
 	}
 }
+
+func TestAnalyticsMigrationContainsExpectedViews(t *testing.T) {
+	expected := []string{
+		"health.record_inventory",
+		"health.sleep_sessions",
+		"health.sleep_stages",
+		"health.sleep_stage_totals",
+		"health.measurements",
+		"health.latest_measurements",
+		"health.blood_pressure",
+		"health.skin_temperature",
+		"health.hydration_events",
+		"health.nutrition_events",
+		"health.exercise_sessions",
+		"health.body_composition",
+	}
+	for _, view := range expected {
+		if !strings.Contains(analyticsMigrationSQL, view) {
+			t.Errorf("analytics migration does not contain %s", view)
+		}
+	}
+	if !strings.Contains(analyticsMigrationSQL, "session_end_time") {
+		t.Error("analytics migration does not use the payload sleep end time")
+	}
+	expectedMeasurements := []string{
+		"heart_rate",
+		"resting_heart_rate",
+		"heart_rate_variability",
+		"oxygen_saturation",
+		"respiratory_rate",
+		"vo2_max",
+		"body_fat",
+		"lean_body_mass",
+		"bone_mass",
+		"body_temperature",
+	}
+	for _, dataType := range expectedMeasurements {
+		if !strings.Contains(analyticsMigrationSQL, "'"+dataType+"'") {
+			t.Errorf("analytics migration does not normalize %s", dataType)
+		}
+	}
+}
