@@ -7,11 +7,12 @@ data:
       "tags": [
         "health",
         "dev",
-        "postgresql"
+        "postgresql",
+        "health-connect"
       ],
       "timezone": "browser",
       "schemaVersion": 39,
-      "version": 1,
+      "version": 2,
       "editable": false,
       "refresh": "1m",
       "time": {
@@ -22,7 +23,7 @@ data:
         {
           "id": 1,
           "type": "stat",
-          "title": "Latest Heart Rate",
+          "title": "Steps Today",
           "datasource": {
             "type": "grafana-postgresql-datasource",
             "uid": "health-postgres-dev"
@@ -31,6 +32,103 @@ data:
             "h": 4,
             "w": 4,
             "x": 0,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "health-postgres-dev"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "\nSELECT value\nFROM health.activity_daily\nWHERE data_type = 'steps'\n  AND local_date =\n      (now() AT TIME ZONE 'Europe/Amsterdam')::date\nLIMIT 1;\n",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 2,
+          "type": "stat",
+          "title": "Distance Today",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "health-postgres-dev"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 4,
+            "y": 0
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "km",
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "health-postgres-dev"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "\nSELECT value / 1000.0 AS value\nFROM health.activity_daily\nWHERE data_type = 'distance'\n  AND local_date =\n      (now() AT TIME ZONE 'Europe/Amsterdam')::date\nLIMIT 1;\n",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 3,
+          "type": "stat",
+          "title": "Latest Heart Rate",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "health-postgres-dev"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 4,
+            "x": 8,
             "y": 0
           },
           "fieldConfig": {
@@ -63,13 +161,13 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT value\nFROM health.latest_measurements\nWHERE data_type = 'heart_rate'\nLIMIT 1;",
+              "rawSql": "\nSELECT value\nFROM health.latest_measurements\nWHERE data_type = 'heart_rate'\nLIMIT 1;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 2,
+          "id": 4,
           "type": "stat",
           "title": "Latest SpO₂",
           "datasource": {
@@ -79,7 +177,7 @@ data:
           "gridPos": {
             "h": 4,
             "w": 4,
-            "x": 4,
+            "x": 12,
             "y": 0
           },
           "fieldConfig": {
@@ -112,15 +210,15 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT value\nFROM health.latest_measurements\nWHERE data_type = 'oxygen_saturation'\nLIMIT 1;",
+              "rawSql": "\nSELECT value\nFROM health.latest_measurements\nWHERE data_type = 'oxygen_saturation'\nLIMIT 1;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 3,
+          "id": 5,
           "type": "stat",
-          "title": "Latest Weight",
+          "title": "Weight",
           "datasource": {
             "type": "grafana-postgresql-datasource",
             "uid": "health-postgres-dev"
@@ -128,7 +226,7 @@ data:
           "gridPos": {
             "h": 4,
             "w": 4,
-            "x": 8,
+            "x": 16,
             "y": 0
           },
           "fieldConfig": {
@@ -161,13 +259,13 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT value\nFROM health.latest_measurements\nWHERE data_type = 'weight'\nLIMIT 1;",
+              "rawSql": "\nSELECT weight_kilograms AS value\nFROM health.body_composition_preferred\nORDER BY local_date DESC\nLIMIT 1;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 4,
+          "id": 6,
           "type": "stat",
           "title": "BMI",
           "datasource": {
@@ -177,7 +275,7 @@ data:
           "gridPos": {
             "h": 4,
             "w": 4,
-            "x": 12,
+            "x": 20,
             "y": 0
           },
           "fieldConfig": {
@@ -209,13 +307,13 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT bmi AS value\nFROM health.body_composition\nORDER BY observed_at DESC\nLIMIT 1;",
+              "rawSql": "\nSELECT bmi::double precision AS value\nFROM health.body_composition_preferred\nORDER BY local_date DESC\nLIMIT 1;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 5,
+          "id": 7,
           "type": "stat",
           "title": "Body Fat",
           "datasource": {
@@ -224,9 +322,9 @@ data:
           },
           "gridPos": {
             "h": 4,
-            "w": 4,
-            "x": 16,
-            "y": 0
+            "w": 6,
+            "x": 0,
+            "y": 4
           },
           "fieldConfig": {
             "defaults": {
@@ -258,27 +356,126 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT value\nFROM health.latest_measurements\nWHERE data_type = 'body_fat'\nLIMIT 1;",
+              "rawSql": "\nSELECT body_fat_percent AS value\nFROM health.body_composition_preferred\nORDER BY local_date DESC\nLIMIT 1;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 6,
+          "id": 8,
           "type": "stat",
-          "title": "Steps Today",
+          "title": "Last Sleep",
           "datasource": {
             "type": "grafana-postgresql-datasource",
             "uid": "health-postgres-dev"
           },
           "gridPos": {
             "h": 4,
-            "w": 4,
-            "x": 20,
-            "y": 0
+            "w": 6,
+            "x": 6,
+            "y": 4
           },
           "fieldConfig": {
             "defaults": {
+              "unit": "h",
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "health-postgres-dev"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "\nSELECT duration_seconds / 3600.0 AS value\nFROM health.sleep_sessions\nORDER BY session_end_time DESC\nLIMIT 1;\n",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "type": "stat",
+          "title": "Average HR — 24h",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "health-postgres-dev"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 12,
+            "y": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bpm",
+              "decimals": 1
+            },
+            "overrides": []
+          },
+          "options": {
+            "reduceOptions": {
+              "values": false,
+              "calcs": [
+                "lastNotNull"
+              ],
+              "fields": ""
+            },
+            "orientation": "auto",
+            "textMode": "auto",
+            "colorMode": "none",
+            "graphMode": "none",
+            "justifyMode": "auto"
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "health-postgres-dev"
+              },
+              "editorMode": "code",
+              "format": "table",
+              "rawQuery": true,
+              "rawSql": "\nSELECT AVG(value)::double precision AS value\nFROM health.measurements\nWHERE data_type = 'heart_rate'\n  AND observed_at >= now() - interval '24 hours';\n",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 10,
+          "type": "stat",
+          "title": "Maximum HR — 24h",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "health-postgres-dev"
+          },
+          "gridPos": {
+            "h": 4,
+            "w": 6,
+            "x": 18,
+            "y": 4
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "bpm",
               "decimals": 0
             },
             "overrides": []
@@ -306,13 +503,13 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT COALESCE(SUM(value), 0)::double precision AS value\nFROM health.activity_events\nWHERE data_type = 'steps'\n  AND start_time >= (\n    date_trunc('day', now() AT TIME ZONE 'Europe/Amsterdam')\n    AT TIME ZONE 'Europe/Amsterdam'\n  );",
+              "rawSql": "\nSELECT MAX(value)::double precision AS value\nFROM health.measurements\nWHERE data_type = 'heart_rate'\n  AND observed_at >= now() - interval '24 hours';\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 7,
+          "id": 11,
           "type": "timeseries",
           "title": "Heart Rate",
           "datasource": {
@@ -323,7 +520,7 @@ data:
             "h": 8,
             "w": 24,
             "x": 0,
-            "y": 4
+            "y": 8
           },
           "fieldConfig": {
             "defaults": {
@@ -352,13 +549,58 @@ data:
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT\n  observed_at AS \"time\",\n  value AS \"Heart rate\"\nFROM health.measurements\nWHERE data_type = 'heart_rate'\n  AND $__timeFilter(observed_at)\nORDER BY observed_at;",
+              "rawSql": "\nSELECT\n    observed_at AS \"time\",\n    value AS \"Heart rate\"\nFROM health.measurements\nWHERE data_type = 'heart_rate'\n  AND $__timeFilter(observed_at)\nORDER BY observed_at;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 8,
+          "id": 12,
+          "type": "timeseries",
+          "title": "Daily Steps",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "health-postgres-dev"
+          },
+          "gridPos": {
+            "h": 8,
+            "w": 12,
+            "x": 0,
+            "y": 16
+          },
+          "fieldConfig": {
+            "defaults": {
+              "decimals": 0
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "health-postgres-dev"
+              },
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "\nSELECT\n    observed_through AS \"time\",\n    value AS \"Steps\"\nFROM health.activity_daily\nWHERE data_type = 'steps'\n  AND $__timeFilter(observed_through)\nORDER BY observed_through;\n",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 13,
           "type": "timeseries",
           "title": "Weight Trend",
           "datasource": {
@@ -368,8 +610,8 @@ data:
           "gridPos": {
             "h": 8,
             "w": 12,
-            "x": 0,
-            "y": 12
+            "x": 12,
+            "y": 16
           },
           "fieldConfig": {
             "defaults": {
@@ -398,15 +640,15 @@ data:
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT\n  observed_at AS \"time\",\n  weight_kilograms AS \"Weight\"\nFROM health.body_composition\nWHERE $__timeFilter(observed_at)\nORDER BY observed_at;",
+              "rawSql": "\nSELECT\n    observed_at AS \"time\",\n    weight_kilograms AS \"Weight\"\nFROM health.body_composition_preferred\nWHERE $__timeFilter(observed_at)\nORDER BY observed_at;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 9,
+          "id": 14,
           "type": "timeseries",
-          "title": "Daily Steps",
+          "title": "Sleep Duration",
           "datasource": {
             "type": "grafana-postgresql-datasource",
             "uid": "health-postgres-dev"
@@ -414,12 +656,13 @@ data:
           "gridPos": {
             "h": 8,
             "w": 12,
-            "x": 12,
-            "y": 12
+            "x": 0,
+            "y": 24
           },
           "fieldConfig": {
             "defaults": {
-              "decimals": 0
+              "unit": "h",
+              "decimals": 1
             },
             "overrides": []
           },
@@ -443,24 +686,70 @@ data:
               "editorMode": "code",
               "format": "time_series",
               "rawQuery": true,
-              "rawSql": "SELECT\n  (\n    date_trunc('day', start_time AT TIME ZONE 'Europe/Amsterdam')\n    AT TIME ZONE 'Europe/Amsterdam'\n  ) AS \"time\",\n  SUM(value)::double precision AS \"Steps\"\nFROM health.activity_events\nWHERE data_type = 'steps'\n  AND $__timeFilter(start_time)\nGROUP BY 1\nORDER BY 1;",
+              "rawSql": "\nSELECT\n    session_end_time AS \"time\",\n    duration_seconds / 3600.0 AS \"Sleep hours\"\nFROM health.sleep_sessions\nWHERE $__timeFilter(session_end_time)\nORDER BY session_end_time;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 10,
-          "type": "table",
-          "title": "Latest Measurements",
+          "id": 15,
+          "type": "timeseries",
+          "title": "Daily Distance",
           "datasource": {
             "type": "grafana-postgresql-datasource",
             "uid": "health-postgres-dev"
           },
           "gridPos": {
-            "h": 10,
+            "h": 8,
+            "w": 12,
+            "x": 12,
+            "y": 24
+          },
+          "fieldConfig": {
+            "defaults": {
+              "unit": "km",
+              "decimals": 2
+            },
+            "overrides": []
+          },
+          "options": {
+            "legend": {
+              "displayMode": "table",
+              "placement": "bottom",
+              "showLegend": true
+            },
+            "tooltip": {
+              "mode": "single",
+              "sort": "none"
+            }
+          },
+          "targets": [
+            {
+              "datasource": {
+                "type": "grafana-postgresql-datasource",
+                "uid": "health-postgres-dev"
+              },
+              "editorMode": "code",
+              "format": "time_series",
+              "rawQuery": true,
+              "rawSql": "\nSELECT\n    observed_through AS \"time\",\n    value / 1000.0 AS \"Distance\"\nFROM health.activity_daily\nWHERE data_type = 'distance'\n  AND $__timeFilter(observed_through)\nORDER BY observed_through;\n",
+              "refId": "A"
+            }
+          ]
+        },
+        {
+          "id": 16,
+          "type": "table",
+          "title": "Preferred Body Composition",
+          "datasource": {
+            "type": "grafana-postgresql-datasource",
+            "uid": "health-postgres-dev"
+          },
+          "gridPos": {
+            "h": 9,
             "w": 12,
             "x": 0,
-            "y": 20
+            "y": 32
           },
           "fieldConfig": {
             "defaults": {},
@@ -478,13 +767,13 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT\n  initcap(replace(data_type, '_', ' ')) AS \"Metric\",\n  to_char(\n    observed_at AT TIME ZONE 'Europe/Amsterdam',\n    'YYYY-MM-DD HH24:MI'\n  ) AS \"Observed\",\n  round(value::numeric, 2) AS \"Value\",\n  unit AS \"Unit\"\nFROM health.latest_measurements\nORDER BY data_type;",
+              "rawSql": "\nSELECT\n    local_date AS \"Date\",\n    ROUND(weight_kilograms::numeric, 1) AS \"Weight kg\",\n    ROUND(height_meters::numeric, 2) AS \"Height m\",\n    bmi AS \"BMI\",\n    ROUND(body_fat_percent::numeric, 1) AS \"Body fat %\",\n    weight_data_origin AS \"Weight source\",\n    height_data_origin AS \"Height source\",\n    body_fat_data_origin AS \"Body-fat source\"\nFROM health.body_composition_preferred\nORDER BY local_date DESC;\n",
               "refId": "A"
             }
           ]
         },
         {
-          "id": 11,
+          "id": 17,
           "type": "table",
           "title": "Health Connect Record Inventory",
           "datasource": {
@@ -492,10 +781,10 @@ data:
             "uid": "health-postgres-dev"
           },
           "gridPos": {
-            "h": 10,
+            "h": 9,
             "w": 12,
             "x": 12,
-            "y": 20
+            "y": 32
           },
           "fieldConfig": {
             "defaults": {},
@@ -513,7 +802,7 @@ data:
               "editorMode": "code",
               "format": "table",
               "rawQuery": true,
-              "rawSql": "SELECT\n  initcap(replace(data_type, '_', ' ')) AS \"Record type\",\n  record_count AS \"Records\",\n  to_char(\n    first_recorded_at AT TIME ZONE 'Europe/Amsterdam',\n    'YYYY-MM-DD HH24:MI'\n  ) AS \"First\",\n  to_char(\n    last_recorded_at AT TIME ZONE 'Europe/Amsterdam',\n    'YYYY-MM-DD HH24:MI'\n  ) AS \"Last\"\nFROM health.record_inventory\nORDER BY data_type;",
+              "rawSql": "\nSELECT\n    initcap(replace(data_type, '_', ' ')) AS \"Record type\",\n    record_count AS \"Records\",\n    to_char(\n        first_recorded_at AT TIME ZONE 'Europe/Amsterdam',\n        'YYYY-MM-DD HH24:MI'\n    ) AS \"First\",\n    to_char(\n        last_recorded_at AT TIME ZONE 'Europe/Amsterdam',\n        'YYYY-MM-DD HH24:MI'\n    ) AS \"Last\"\nFROM health.record_inventory\nORDER BY data_type;\n",
               "refId": "A"
             }
           ]
