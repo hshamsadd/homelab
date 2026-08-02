@@ -39,20 +39,3 @@ spec:
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
       backendRefs: [ { name: wallabag, port: 80 } ]
----
-apiVersion: gateway.networking.k8s.io/v1
-kind: HTTPRoute
-metadata:
-  name: health-ingester-route
-  namespace: dev
-spec:
-  parentRefs:
-    - name: local-cluster-gateway
-      namespace: kube-system
-  rules:
-    - matches:
-        - path: { type: Exact, value: /v1/health-connect }
-        - path: { type: PathPrefix, value: /v1/health-connect/ }
-      backendRefs:
-        - name: health-ingester
-          port: 8080
