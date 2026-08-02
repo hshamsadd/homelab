@@ -1,0 +1,55 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: dockge-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: local-cluster-gateway
+    namespace: kube-system
+  hostnames: ["dockge.home"]
+  rules:
+  - matches: [{ path: { type: PathPrefix, value: / } }]
+    backendRefs: [{ name: dockge-service, port: 5001 }]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: portainer-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: local-cluster-gateway
+    namespace: kube-system
+  hostnames: ["portainer.home"]
+  rules:
+  - matches: [{ path: { type: PathPrefix, value: / } }]
+    backendRefs: [{ name: portainer-service, port: 9000 }]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: qbittorrent-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: local-cluster-gateway
+    namespace: kube-system
+  hostnames: ["qbittorrent.home"]
+  rules:
+  - matches: [{ path: { type: PathPrefix, value: / } }]
+    backendRefs: [{ name: qbittorrent-service, port: 8080 }]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: vault-route
+  namespace: default
+spec:
+  parentRefs:
+  - name: local-cluster-gateway
+    namespace: kube-system
+  hostnames: ["vault.home"]
+  rules:
+  - matches: [{ path: { type: PathPrefix, value: / } }]
+    backendRefs: [{ name: vault-service, port: 8200 }]

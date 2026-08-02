@@ -1,0 +1,60 @@
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: minio-dev-route
+  namespace: dev
+spec:
+  parentRefs:
+    - name: local-cluster-gateway
+      namespace: kube-system
+  hostnames: [ "minio-dev.home" ]
+  rules:
+    - matches: [ { path: { type: PathPrefix, value: / } } ]
+      backendRefs: [ { name: minio-console-ingress, port: 9001 } ]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: pgadmin-dev-route
+  namespace: dev
+spec:
+  parentRefs:
+    - name: local-cluster-gateway
+      namespace: kube-system
+  hostnames: [ "pgadmin-dev.home" ]
+  rules:
+    - matches: [ { path: { type: PathPrefix, value: / } } ]
+      backendRefs: [ { name: pgadmin-ingress, port: 80 } ]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: wallabag-dev-route
+  namespace: dev
+spec:
+  parentRefs:
+    - name: local-cluster-gateway
+      namespace: kube-system
+  hostnames: [ "wallabag-dev.home" ]
+  rules:
+    - matches: [ { path: { type: PathPrefix, value: / } } ]
+      backendRefs: [ { name: wallabag-ingress, port: 80 } ]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: health-ingester-route
+  namespace: dev
+spec:
+  parentRefs:
+    - name: local-cluster-gateway
+      namespace: kube-system
+    # 💡 Hostnames field is intentionally left blank to act as a catch-all (*), matching your original spec.
+  rules:
+    - matches:
+        - path:
+            type: Exact # 🚨 Matches your original 'Exact' pathType
+            value: /v1/health-connect
+      backendRefs:
+        - name: health-ingester
+          port: 8080 # 🚨 Matches your original named port mapping

@@ -1,0 +1,12 @@
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: local-cluster-cert
+  namespace: kube-system # 🚨 CRITICAL: Must be in kube-system with your gateway
+spec:
+  secretName: local-cluster-cert # 🔗 This builds the exact data block Traefik is waiting for
+  dnsNames:
+  - "*.home" # 🌟 Wildcard captures all current and future .home apps instantly
+  issuerRef:
+    name: local-selfsigned-issuer
+    kind: ClusterIssuer

@@ -1,6 +1,6 @@
 apiVersion: cert-manager.io/v1
 kind: ClusterIssuer
 metadata:
-  name: local-homelab-issuer
+  name: local-selfsigned-issuer
 spec:
   selfSigned: {}
