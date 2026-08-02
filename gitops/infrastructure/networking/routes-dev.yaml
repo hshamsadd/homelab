@@ -51,9 +51,8 @@ spec:
       namespace: kube-system
   rules:
     - matches:
-        - path:
-            type: Exact
-            value: /v1/health-connect
+        - path: { type: Exact, value: /v1/health-connect }
+        - path: { type: PathPrefix, value: /v1/health-connect/ }
       backendRefs:
         - name: health-ingester
           port: 8080
