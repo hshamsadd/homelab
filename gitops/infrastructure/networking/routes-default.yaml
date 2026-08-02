@@ -55,7 +55,6 @@ spec:
       backendRefs:
         - name: vault-external
           port: 8200
-          # 🌟 This links the Route directly to your secure Traefik transport profile
           filters:
             - type: ExtensionRef
               extensionRef:

@@ -38,6 +38,7 @@ metadata:
   namespace: default
 spec:
   serverName: debian.tailfb03f6.ts.net
+  insecureSkipVerify: true # Crucial: Tells Traefik to accept Vault's self-signed TLS cert
 ---
 
 
