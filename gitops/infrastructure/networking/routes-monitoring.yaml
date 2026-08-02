@@ -10,4 +10,4 @@ spec:
   hostnames: ["grafana.home"]
   rules:
   - matches: [{ path: { type: PathPrefix, value: / } }]
-    backendRefs: [{ name: grafana, port: 3000 }]
+    backendRefs: [{ name: monitoring-grafana, port: 80 }]

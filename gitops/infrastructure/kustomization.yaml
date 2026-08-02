@@ -2,9 +2,18 @@ apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
 
 resources:
-  - networking/vault-external.yaml
   - ../apps/base/argocd-ui
-  - networking/external-docker-bridge.yaml
-  - cert-manager/local-issuer.yaml
+  - cert-manager/local-selfsigned-issuer.yaml
+  - cert-manager/manual-local-cert.yaml
   - vault-secrets-operator
   - monitoring-stack
+  - networking/vault-external.yaml
+  - networking/external-docker-bridge.yaml
+  - networking/traefik-gateway-rbac.yaml
+  - networking/gateway-class.yaml
+  - networking/local-cluster-gateway.yaml
+  - networking/routes-default.yaml
+  - networking/routes-production.yaml
+  - networking/routes-dev.yaml
+  - networking/routes-monitoring.yaml
+  - networking/routes-argocd.yaml
