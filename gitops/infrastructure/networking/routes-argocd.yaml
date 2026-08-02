@@ -5,9 +5,9 @@ metadata:
   namespace: argocd
 spec:
   parentRefs:
-  - name: local-cluster-gateway
-    namespace: kube-system
-  hostnames: ["argocd.home"]
+    - name: local-cluster-gateway
+      namespace: kube-system
+  hostnames: [ "argocd.home" ]
   rules:
-  - matches: [{ path: { type: PathPrefix, value: / } }]
-    backendRefs: [{ name: argocd-server, port: 80 }]
+    - matches: [ { path: { type: PathPrefix, value: / } } ]
+      backendRefs: [ { name: argocd-server, port: 80 } ]

@@ -10,7 +10,7 @@ spec:
   hostnames: [ "minio-dev.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
-      backendRefs: [ { name: minio-console-ingress, port: 9001 } ]
+      backendRefs: [ { name: minio, port: 9001 } ]
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -24,7 +24,7 @@ spec:
   hostnames: [ "pgadmin-dev.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
-      backendRefs: [ { name: pgadmin-ingress, port: 80 } ]
+      backendRefs: [ { name: pgadmin, port: 80 } ]
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -38,7 +38,7 @@ spec:
   hostnames: [ "wallabag-dev.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
-      backendRefs: [ { name: wallabag-ingress, port: 80 } ]
+      backendRefs: [ { name: wallabag, port: 80 } ]
 ---
 apiVersion: gateway.networking.k8s.io/v1
 kind: HTTPRoute
@@ -49,12 +49,11 @@ spec:
   parentRefs:
     - name: local-cluster-gateway
       namespace: kube-system
-    # 💡 Hostnames field is intentionally left blank to act as a catch-all (*), matching your original spec.
   rules:
     - matches:
         - path:
-            type: Exact # 🚨 Matches your original 'Exact' pathType
+            type: Exact
             value: /v1/health-connect
       backendRefs:
         - name: health-ingester
-          port: 8080 # 🚨 Matches your original named port mapping
+          port: 8080
