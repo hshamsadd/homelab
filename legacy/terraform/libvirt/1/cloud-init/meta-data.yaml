@@ -1,3 +1,0 @@
-# meta-data section
-instance-id: ${vm_hostname}-001
-local-hostname: ${vm_hostname}

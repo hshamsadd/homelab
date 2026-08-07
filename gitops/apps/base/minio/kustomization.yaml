@@ -4,4 +4,3 @@ resources:
   - minio-pvc.yaml
   - statefulset.yaml
   - service.yaml
-  #- ingress.yaml

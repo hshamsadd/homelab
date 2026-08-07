@@ -42,5 +42,3 @@
 
           Connect using its Tailscale IP address:
           vault-ssh --user {{ ansible_user }} {{ tailscale_summary_ip.stdout | trim }}
-
-# {{ inventory_hostname }}

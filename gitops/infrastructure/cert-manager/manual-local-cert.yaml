@@ -4,9 +4,9 @@ metadata:
   name: local-cluster-cert
   namespace: infrastructure
 spec:
-  secretName: local-cluster-cert # 🔗 This builds the exact data block Traefik is waiting for
+  secretName: local-cluster-cert
   dnsNames:
-    - "*.home" # 🌟 Wildcard captures all current and future .home apps instantly
+    - "*.home"
   issuerRef:
     name: local-selfsigned-issuer
     kind: ClusterIssuer

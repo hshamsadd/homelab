@@ -13,7 +13,6 @@ resources:
   - ../../base/pgadmin
   - ../../base/redis
   - ../../base/wallabag
-  #- ../../base/argocd-ui
 
   # 4. Call in the production Kubernetes secrets
   - ./secrets
