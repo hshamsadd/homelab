@@ -5,9 +5,9 @@ metadata:
   namespace: monitoring
 spec:
   parentRefs:
-  - name: local-cluster-gateway
-    namespace: kube-system
-  hostnames: ["grafana.home"]
+    - name: local-cluster-gateway
+      namespace: infrastructure
+  hostnames: [ "grafana.home" ]
   rules:
-  - matches: [{ path: { type: PathPrefix, value: / } }]
-    backendRefs: [{ name: monitoring-grafana, port: 80 }]
+    - matches: [ { path: { type: PathPrefix, value: / } } ]
+      backendRefs: [ { name: monitoring-grafana, port: 80 } ]

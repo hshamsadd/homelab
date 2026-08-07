@@ -6,7 +6,7 @@ metadata:
 spec:
   parentRefs:
     - name: local-cluster-gateway
-      namespace: kube-system
+      namespace: infrastructure
   hostnames: [ "minio.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
@@ -20,7 +20,7 @@ metadata:
 spec:
   parentRefs:
     - name: local-cluster-gateway
-      namespace: kube-system
+      namespace: infrastructure
   hostnames: [ "pgadmin.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
@@ -34,7 +34,7 @@ metadata:
 spec:
   parentRefs:
     - name: local-cluster-gateway
-      namespace: kube-system
+      namespace: infrastructure
   hostnames: [ "wallabag.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]

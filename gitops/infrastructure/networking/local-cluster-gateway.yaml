@@ -2,25 +2,25 @@ apiVersion: gateway.networking.k8s.io/v1
 kind: Gateway
 metadata:
   name: local-cluster-gateway
-  namespace: kube-system
+  namespace: infrastructure
   annotations:
     cert-manager.io/cluster-issuer: local-selfsigned-issuer
 spec:
   gatewayClassName: traefik
   listeners:
-  - name: web
-    protocol: HTTP
-    port: 8000
-    allowedRoutes:
-      namespaces:
-        from: All # ALLOWS ALL NAMESPACES TO USE THIS PORT
-  - name: websecure
-    protocol: HTTPS
-    port: 8443
-    tls:
-      mode: Terminate
-      certificateRefs:
-      - name: local-cluster-cert
-    allowedRoutes:
-      namespaces:
-        from: All # ALLOWS ALL NAMESPACES TO USE THIS PORT
+    - name: web
+      protocol: HTTP
+      port: 8000
+      allowedRoutes:
+        namespaces:
+          from: All # ALLOWS ALL NAMESPACES TO USE THIS PORT
+    - name: websecure
+      protocol: HTTPS
+      port: 8443
+      tls:
+        mode: Terminate
+        certificateRefs:
+          - name: local-cluster-cert
+      allowedRoutes:
+        namespaces:
+          from: All # ALLOWS ALL NAMESPACES TO USE THIS PORT

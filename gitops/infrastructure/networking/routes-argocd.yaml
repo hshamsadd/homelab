@@ -6,7 +6,7 @@ metadata:
 spec:
   parentRefs:
     - name: local-cluster-gateway
-      namespace: kube-system
+      namespace: infrastructure
   hostnames: [ "argocd.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]

@@ -561,3 +561,85 @@ curl -sS -o /dev/null -w '%{http_code}\n' http://wallabag-dev.home/
 
 echo "PASS: stack-dev migration and staging retirement completed"  
 )
+
+# Get status of different components
+kubectl get {k8s-component} or kubectl get {k8s-component} -n {namespace}
+kubectl get nodes -n {namespace}
+kubectl get pods -n {namespace}
+kubectl get pod {pod-name} -n {namespace} -o wide
+kubectl get services -n {namespace}
+kubectl get deployment -n {namespace}
+kubectl get deployment {deployment-name} -n {namespace} -o yaml
+kubectl get replicaset -n {namespace}
+kubectl get ingress -n {namespace}
+kubectl get gateway -n {namespace}
+kubectl get apps -n {namespace}
+note: You can use -A instead of -n {namespace} to see results from all namespaces
+
+# CRUD
+kubectl create {k8s-component} {name} {options}
+kubectl create deployment my-nginx-depl --image=nginx
+
+kubectl edit {k8s-component} {name} {options}
+kubectl delete {k8s-component} {name} {options}
+kubectl apply -f {config-file.yaml}
+kubectl delete -f {config-file.yaml}
+
+# Debugg
+kubectl logs {pod-name} -n {namespace}
+kubectl logs -f {pod-name} -n {namespace} # For live logs
+kubectl describe pod {pod-name} -n {namespace}
+
+kubectl exec -it {pod-name} -n {namespace} -- bash
+
+# Show Live Resource Usage (CPU/Memory)
+kubectl top pod -n {namespace}
+kubectl top node
+
+# Advanced Debugging & TroubleshootingView Real-Time Logs (Stream/Follow)
+kubectl logs -f {pod-name} -n {namespace}
+
+# View Logs of a Previous (Crashed) Container Instance
+kubectl logs {pod-name} -p -n {namespace}
+
+# Stream Multi-Pod Logs by Label
+kubectl logs -l app={label-name} -f -n {namespace}
+
+# Forward a Local Port to a Pod/Service (Bypass Ingress)
+kubectl port-forward {pod-or-service-name} {local-port}:{cluster-port} -n {namespace}
+
+# Copy Files To or From a Container
+kubectl cp {local-file-path} {namespace}/{pod-name}:{container-path}
+kubectl cp {namespace}/{pod-name}:{container-path} {local-file-path}
+
+# Enhanced Cluster & Component InspectionList All Resources Across ALL Namespaces
+kubectl get all -A
+
+# List All Namespaces
+kubectl get ns
+
+# Show Labels Assigned to Resources
+kubectl get pods --show-labels -n {namespace}
+
+# List Ingress / Network Routes
+kubectl get ingress -n {namespace}
+
+# List Configurations & Secretsbashkubectl get configmap -n {namespace}
+kubectl get secret -n {namespace}
+
+# Deletion & Cleanup UpdatesDelete a Resource Using the YAML File Directly
+kubectl delete -f {config-file.yaml}
+
+# Force Delete a Pod Immediately (Skip Grace Period)
+kubectl delete pod {pod-name} -n {namespace} --force --grace-period=0
+
+# Context & Configuration ManagementView Current Kubeconfig Context (Where are you connected?)kubectl config current-context
+
+# Switch to a Different Cluster Context
+kubectl config use-context {context-name}
+
+# Permanently Set a Default Namespace for Current Context
+kubectl config set-context --current --namespace={namespace}
+
+# Quick Syntax Generator (Dry-Run)Generate YAML Configuration Without Creating the Resource
+kubectl create deployment {name} --image={image} --dry-run=client -o yaml > deploy.yaml

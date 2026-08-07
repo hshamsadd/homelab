@@ -2,7 +2,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: dockge-service
-  namespace: default
+  namespace: docker
 spec:
   ports:
     - port: 5001
@@ -12,7 +12,7 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: dockge-service
-  namespace: default
+  namespace: docker
 subsets:
   - addresses:
       - ip: 100.110.252.128
@@ -23,7 +23,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: portainer-service
-  namespace: default
+  namespace: docker
 spec:
   ports:
     - port: 9000
@@ -33,7 +33,7 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: portainer-service
-  namespace: default
+  namespace: docker
 subsets:
   - addresses:
       - ip: 100.110.252.128
@@ -44,7 +44,7 @@ apiVersion: v1
 kind: Service
 metadata:
   name: qbittorrent-service
-  namespace: default
+  namespace: docker
 spec:
   ports:
     - port: 80
@@ -54,7 +54,7 @@ apiVersion: v1
 kind: Endpoints
 metadata:
   name: qbittorrent-service
-  namespace: default
+  namespace: docker
 subsets:
   - addresses:
       - ip: 100.110.252.128

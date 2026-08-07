@@ -3,6 +3,7 @@ kind: Kustomization
 
 resources:
   - ../apps/base/argocd-ui
+  - namespace.yaml
   - cert-manager/local-selfsigned-issuer.yaml
   - cert-manager/manual-local-cert.yaml
   - vault-secrets-operator
@@ -12,7 +13,7 @@ resources:
   - networking/traefik-gateway-rbac.yaml
   - networking/gateway-class.yaml
   - networking/local-cluster-gateway.yaml
-  - networking/routes-default.yaml
+  - networking/routes-docker.yaml
   - networking/routes-production.yaml
   - networking/routes-dev.yaml
   - networking/routes-monitoring.yaml
