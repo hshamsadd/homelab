@@ -138,29 +138,3 @@ variable "k3s_node_name" {
   description = "Node name registered with K3s."
   default     = "worker-3"
 }
-
-
-############################################
-# Sensitive Variables
-############################################
-# variable "tailscale_auth_key" {
-#   type        = string
-#   description = "Ephemeral, reusable Tailscale auth key to join the mesh"
-#   sensitive   = true
-# }
-
-# variable "private_key_path" {
-#   type        = string
-#   description = "The path to the private key file."
-# }
-
-# variable "ssh_authorized_keys_path" {
-#   type        = string
-#   description = "The path to the public key file."
-# }
-
-# variable "k3s_node_token" {
-#   type        = string
-#   description = "The K3s cluster node token to join the control plane"
-#   sensitive   = true
-# }

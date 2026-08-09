@@ -137,7 +137,6 @@ tmp-secrets/
 ansible/terraform_vm_key.pem
 ansible/terraform_vm_key.pub
 ansible/inventory.json
-terraform.tfstate.backup
 .terraform/
 #.md
 .tfvars

@@ -1,4 +1,34 @@
-# 🚀 Enterprise Kubernetes GitOps Platformm
+# 🚀 Enterprise Hybrid Cloud GitOps Platform
+
+[![GitOps: ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-cb4b16?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
+[![Infrastructure: Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?style=flat-square&logo=terraform)](#)
+[![Configuration: Ansible](https://img.shields.io/badge/Config-Ansible-EE0000?style=flat-square&logo=ansible)](#)
+[![Security: Vault](https://img.shields.io/badge/Security-HashiCorp_Vault-000000?style=flat-square&logo=vault)](#)
+[![Data: CloudNativePG](https://img.shields.io/badge/Data-CloudNativePG-336791?style=flat-square&logo=postgresql)](#)
+
+A production-grade, multi-node Kubernetes (K3s) platform spanning on-premises Libvirt VMs and Oracle Cloud Infrastructure (OCI). This repository demonstrates enterprise platform engineering patterns including **stateful workload resilience**, **zero-trust secrets management**, and **fully declarative GitOps delivery**.
+
+Unlike standard homelabs, this project bridges the gap between infrastructure and software engineering, featuring a custom Go-based microservice alongside advanced infrastructure-as-code automation.
+
+---
+
+## 🏗️ Architecture Overview
+
+The cluster operates across physical borders using a **Tailscale Mesh Network**, unifying local RHEL 10 virtual machines and cloud compute instances into a single, cohesive Kubernetes cluster.
+
+```text
+                        [ Tailscale Overlay Mesh Network ]
+                                       │
+     ┌─────────────────────────────────┼─────────────────────────────────┐
+     │                                 │                                 │
+┌────┴────────────────────┐   ┌────────┴────────────────┐   ┌────────────┴────────────┐
+│  Server (Control Plane) │   │  Worker-1 (Compute VM)  │   │  Worker-2 (Storage Node)│
+│  Libvirt / RHEL 10      │   │  Oracle Cloud (OCI)     │   │  Libvirt / RHEL 10      │
+└─────────────────────────┘   └─────────────────────────┘   └─────────────────────────┘
+
+
+
+# 🚀 Hybrid Cloud GitOps Platform
 
 [![GitOps: ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-cb4b16?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
 [![Secret Management: SealedSecrets](https://img.shields.io/badge/Security-SealedSecrets-blue?style=flat-square)](#)

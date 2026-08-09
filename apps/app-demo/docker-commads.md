@@ -345,5 +345,3 @@ docker system prune -f
 
 docker compose down
 docker compose up -d
-
-Soyouthinkyoucandance?!
