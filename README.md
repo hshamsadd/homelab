@@ -93,4 +93,4 @@ If you are reviewing this repository for a technical assessment, here are the ke
 4.  **Custom Development:** Review `apps/health-ingester/` to see a custom Go microservice featuring SQL migrations, native Prometheus ServiceMonitor integration, and Docker optimization.
 
 ---
-*Architected and maintained by [Hussein(Zain) Shams Addin]. Feel free to reach out on [LinkedIn](https://www.linkedin.com/in/hshamsadd) to discuss Cloud Native architectures, Platform Engineering, or this platform build.*
+*Architected and maintained by Hussein(Zain) Shams Addin. Feel free to reach out on [LinkedIn](https://www.linkedin.com/in/hshamsadd) to discuss Cloud Native architectures, Platform Engineering, or this platform build.*
