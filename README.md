@@ -20,7 +20,7 @@ A production-grade, multi-cloud Kubernetes (K3s) platform spanning on-premises (
 *   **Data & Observability:** Highly available **PostgreSQL (CloudNativePG)** with automated S3 WAL archiving, monitored by a full **Prometheus/Grafana** stack.
 
 
-![Platform Architecture](docs/architecture/diagram.png)
+![Platform Architecture](docs/architecture/argocd-ui.png)
 
 ---
 
