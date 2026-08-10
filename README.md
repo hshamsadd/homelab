@@ -21,6 +21,8 @@ A production-grade, multi-cloud Kubernetes (K3s) platform spanning on-premises (
 
 
 ![Platform Architecture](docs/architecture/argocd-ui.png)
+![Kubernetes Cluster Resource Quotas & Monitoring](docs/architecture/1.png)
+![Grafana Node Exporter - Tailscale Mesh](docs/architecture/2.png)
 
 ---
 
