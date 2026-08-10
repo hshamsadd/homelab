@@ -46,8 +46,6 @@ coverage/
 .idea/
 .DS_Store
 Thumbs.db
-*.swp
-*.tmp
 
 # Logs
 logs/
@@ -63,18 +61,14 @@ terraform.tfstate*
 ssh/
 !vault/ssh/
 !vault/ssh/vault-ssh-user-ca.pub
-*.pem
 ansible/terraform_vm_key.pem
 ansible/terraform_vm_key.pub
 ansible/inventory.json
 
 # Terraform working directories
-.terraform/
 **/.terraform/*
 
 # Terraform state files
-*.tfstate
-*.tfstate.*
 terraform.tfstate.backup
 
 # Local environment-specific variable files
@@ -93,52 +87,32 @@ crash.*.log
 
 # Terraform runtime
 **/.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-crash.log
-crash.*.log
 
 # Terraform secret inputs
 terraform.tfvars
 terraform.tfvars.json
-*.auto.tfvars
-*.auto.tfvars.json
 *.secret.tfvars
 
 # Credentials and private keys
-*.pem
-*.key
-*.p12
 *.pfx
-*.kubeconfig
 credentials.tfrc.json
 .terraformrc
 .vault-token
 
 # Application dependencies
-node_modules/
 vendor/
 
 # Temporary secrets
 .secrets/
 tmp-secrets/
-.env
-.env.*
 
 # Keep examples
 !.env.example
 !*.tfvars.example
 
-
 ===
 
-*.pem
-ansible/terraform_vm_key.pem
-ansible/terraform_vm_key.pub
-ansible/inventory.json
-.terraform/
-#.md
+
 .tfvars
 
 
@@ -146,44 +120,15 @@ ansible/inventory.json
 # BEGIN HOMELAB GENERATED FILES
 
 # Terraform runtime
-**/.terraform/
-*.tfstate
-*.tfstate.*
-*.tfplan
-crash.log
-crash.*.log
 
 # Terraform secret inputs
-terraform.tfvars
-terraform.tfvars.json
-*.auto.tfvars
-*.auto.tfvars.json
-*.secret.tfvars
 
 # Credentials and private keys
-*.pem
-*.key
-*.p12
-*.pfx
-*.kubeconfig
-credentials.tfrc.json
-.terraformrc
-.vault-token
 
 # Application dependencies
-node_modules/
-vendor/
 
 # Temporary secrets
-.secrets/
-tmp-secrets/
 *.secret
-.env
-.env.*
-
-# Keep examples
-!.env.example
-!*.tfvars.example
 
 # END HOMELAB GENERATED FILES
 
@@ -194,6 +139,3 @@ tmp-secrets/
 !**/secrets/vault-serviceaccount.yaml
 !**/secrets/vault-auth.yaml
 !**/secrets/vault-static-secret-*.yaml
-
-# Local plaintext credentials
-repo-secret.yaml
