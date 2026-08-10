@@ -1,85 +1,96 @@
-# 🚀 Enterprise Hybrid Cloud GitOps Platform
+# ☁️ Enterprise Hybrid Cloud GitOps Platform
 
-[![GitOps: ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-cb4b16?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
-[![Infrastructure: Terraform](https://img.shields.io/badge/IaC-Terraform-7B42BC?style=flat-square&logo=terraform)](#)
-[![Configuration: Ansible](https://img.shields.io/badge/Config-Ansible-EE0000?style=flat-square&logo=ansible)](#)
-[![Security: Vault](https://img.shields.io/badge/Security-HashiCorp_Vault-000000?style=flat-square&logo=vault)](#)
-[![Data: CloudNativePG](https://img.shields.io/badge/Data-CloudNativePG-336791?style=flat-square&logo=postgresql)](#)
+[![Infrastructure as Code](https://img.shields.io/badge/IaC-Terraform-7B42BC?style=flat-square&logo=terraform)](terraform/)
+[![Configuration Management](https://img.shields.io/badge/Config-Ansible-EE0000?style=flat-square&logo=ansible)](ansible/)
+[![Continuous Delivery](https://img.shields.io/badge/GitOps-ArgoCD-EF7B4D?style=flat-square&logo=argo)](gitops/)
+[![Zero Trust](https://img.shields.io/badge/Security-Vault-000000?style=flat-square&logo=hashicorp)](vault/)
 
-A production-grade, multi-node Kubernetes (K3s) platform spanning on-premises Libvirt VMs and Oracle Cloud Infrastructure (OCI). This repository demonstrates enterprise platform engineering patterns including **stateful workload resilience**, **zero-trust secrets management**, and **fully declarative GitOps delivery**.
+A production-grade, multi-cloud Kubernetes (K3s) platform spanning on-premises (Libvirt/KVM) and public cloud (Oracle Cloud OCI / AWS) infrastructure. This repository contains the complete codebase to provision, configure, and manage a secure, highly available developer platform using strict GitOps methodologies and a Zero-Trust security model.
 
-Unlike standard homelabs, this project bridges the gap between infrastructure and software engineering, featuring a custom Go-based microservice alongside advanced infrastructure-as-code automation.
-
----
-
-## 🏗️ Architecture Overview
-
-The cluster operates across physical borders using a **Tailscale Mesh Network**, unifying local RHEL 10 virtual machines and cloud compute instances into a single, cohesive Kubernetes cluster.
-
-```text
-                        [ Tailscale Overlay Mesh Network ]
-                                       │
-     ┌─────────────────────────────────┼─────────────────────────────────┐
-     │                                 │                                 │
-┌────┴────────────────────┐   ┌────────┴────────────────┐   ┌────────────┴────────────┐
-│  Server (Control Plane) │   │  Worker-1 (Compute VM)  │   │  Worker-2 (Storage Node)│
-│  Libvirt / RHEL 10      │   │  Oracle Cloud (OCI)     │   │  Libvirt / RHEL 10      │
-└─────────────────────────┘   └─────────────────────────┘   └─────────────────────────┘
-
-
-
-# 🚀 Hybrid Cloud GitOps Platform
-
-[![GitOps: ArgoCD](https://img.shields.io/badge/GitOps-ArgoCD-cb4b16?style=flat-square&logo=argo)](https://argoproj.github.io/cd/)
-[![Secret Management: SealedSecrets](https://img.shields.io/badge/Security-SealedSecrets-blue?style=flat-square)](#)
-[![Database: CloudNativePG](https://img.shields.io/badge/Data-CloudNativePG-336791?style=flat-square&logo=postgresql)](#)
-[![Storage: MinIO](https://img.shields.io/badge/Storage-MinIO-C7202C?style=flat-square&logo=minio)](#)
-
-An enterprise-grade, GitOps-driven Kubernetes platform focusing on **stateful workload resilience**, **automated disaster recovery**, and **environment parity**.
-
-Unlike standard homelabs that stop at deploying stateless web servers, this repository demonstrates how to manage complex stateful data lifecycles, cross-environment database bootstrapping, and secure secret management in a fully declarative way.
-
--------
-
-## 🏗️ Architecture & Core Philosophy
-
-This cluster is managed 100% declaratively using the **App-of-Apps** pattern in ArgoCD. All infrastructure, applications, and configurations are defined in Git. 
-
-*   **Infrastructure as Code (IaC):** Terraform and Ansible for foundational cluster provisioning.
-*   **GitOps Delivery:** ArgoCD synchronized with Kustomize overlays.
-*   **Zero-Trust Secrets:** Bitnami Sealed Secrets with asymmetric encryption, ensuring no plaintext secrets are ever pushed to Git.
-*   **Base/Overlay Strategy:** DRY (Don't Repeat Yourself) manifests using Kustomize `base` for core application logic and `environments` (Production/Staging) for environment-specific patching.
+> **💡 Note to Recruiters & Engineering Managers:** 
+> This repository demonstrates enterprise platform engineering patterns, including the **App-of-Apps GitOps pattern**, **OIDC-federated secret injection**, **stateful database disaster recovery**, and **multi-cloud mesh networking**. 
 
 ---
 
-## 🔥 Key Engineering Highlights
+## 🏗️ High-Level Architecture
 
-### 1. Automated Disaster Recovery & Staging Data Hydration
-*The hardest part of Kubernetes isn't running pods; it's managing data.* 
-This cluster utilizes **CloudNativePG (CNPG)** with Continuous Archiving (WAL) to an S3-compatible **MinIO** object store. 
-*   **Production:** Automatically pushes Point-In-Time-Recovery (PITR) backups and WAL logs to MinIO.
-*   **Staging Bootstrapping:** The staging environment is configured to bootstrap itself securely from the production MinIO backup using a scoped, read-only `SealedSecret`. This mimics enterprise workflows where developers need sanitized production data in staging environments without manual database dumps.
+*   **Infrastructure (The Outside):** Immutable cloud and on-prem hardware provisioned via **Terraform**, configured via **Ansible**, and unified securely over a **Tailscale** VPN mesh.
+*   **Platform (The Inside):** Declarative cluster state reconciled continuously by **ArgoCD**.
+*   **Security:** Centralized secret management via **HashiCorp Vault**, utilizing the Vault Secrets Operator to dynamically inject credentials into workloads without plaintext secrets in Git.
+*   **Data & Observability:** Highly available **PostgreSQL (CloudNativePG)** with automated S3 WAL archiving, monitored by a full **Prometheus/Grafana** stack.
 
-### 2. ArgoCD App-of-Apps Pattern
-Located in `/gitops/bootstrap`, a single `root-application.yaml` dynamically discovers and deploys child applications (`app-infrastructure.yaml`, `app-production.yaml`, `app-staging.yaml`). Bootstrapping the entire cluster from scratch requires applying exactly one file.
 
-### 3. Kustomize Overlay Architecture
-Applications (MinIO, PgAdmin, Redis, Wallabag) are templated in `/gitops/apps/base`. Environment specific configurations (Ingress hostnames, PVC sizes, resource limits, and secrets) are injected via `/gitops/apps/environments/[prod|staging]/patches`, ensuring perfect environment parity with zero code duplication.
+![Platform Architecture](docs/architecture/diagram.png)
 
 ---
 
-## 📂 Repository Navigation
+## 📂 Repository Structure
+
+The codebase strictly enforces the boundary of responsibility between Infrastructure Provisioning, Configuration Management, and Continuous Delivery:
 
 ```text
 .
-├── ansible/                  # Server configuration and prerequisites
-├── terraform/                # Cluster initialization and cloud infrastructure
-├── gitops/                   # The heart of the GitOps deployment
-│   ├── bootstrap/            # ArgoCD App-of-Apps root manifests
-│   ├── infrastructure/       # Cluster-wide controllers (cert-manager, sealed-secrets, networking)
-│   └── apps/
-│       ├── base/             # Base Kustomize configurations for all workloads
-│       └── environments/
-│           ├── production/   # Prod-specific overlays, patches, and SealedSecrets
-│           └── staging/      # Staging overlays (includes Prod-DB cross-restore logic)
-└── docs/                     # Architectural Decision Records (ADRs)
+├── ansible/      # OS-level configuration, K3s bootstrapping, and SSH CA setup
+├── apps/         # Custom microservices (Go/Node.js) with Dockerfiles & tests
+├── gitops/       # ArgoCD desired state (App-of-Apps, Overlays, Core Infrastructure)
+├── terraform/    # Hardware provisioning (OCI Compute, AWS Networking, Libvirt VMs)
+└── vault/        # HashiCorp Vault policies, OIDC roles, and GitHub Actions bindings
+```
+
+---
+
+## 🚀 Core Engineering Features
+
+### 1. Declarative GitOps (ArgoCD)
+The cluster state is entirely managed by ArgoCD utilizing the **App of Apps** pattern. The `gitops/` directory is logically separated into:
+*   **`infrastructure/`**: Core platform dependencies (Gateway API, Cert-Manager, Vault Secrets Operator, Prometheus Stack).
+*   **`apps/environments/`**: Tenant workloads segmented by lifecycle (`dev`, `production`), utilizing **Kustomize** to patch environment-specific configurations (e.g., scaling up replicas and resource quotas in production).
+
+### 2. Multi-Cloud Mesh Networking
+The cluster spans local RHEL10 hypervisors and Oracle Cloud (OCI) compute instances.
+*   **Terraform** provisions the distinct environments.
+*   **Ansible** installs and configures a **Tailscale** overlay network.
+*   K3s utilizes the internal Tailscale IPs (e.g., `100.x.x.x`) to form a secure, encrypted control plane and worker node pool across the public internet.
+*   External legacy VMs are bridged into the Kubernetes Gateway via native `Service` and `Endpoints` manifests (`gitops/infrastructure/networking/external-docker-bridge.yaml`).
+
+### 3. Zero-Trust Secrets Management
+No plaintext secrets exist in this repository (verified via `gitleaks`).
+*   **HashiCorp Vault** is the sole source of truth.
+*   GitHub Actions authenticates to Vault via **OIDC (JWT)** to retrieve ephemeral deployment credentials.
+*   Within the cluster, the **Vault Secrets Operator** synchronizes dynamic database credentials and API keys into Kubernetes `Secrets` just-in-time, governed by strict Vault policies mapped to Kubernetes ServiceAccounts.
+
+### 4. Stateful Workloads & Disaster Recovery
+Databases are treated as first-class citizens using the **CloudNativePG** operator.
+*   **High Availability:** Production databases run in a multi-node cluster configuration.
+*   **Offsite DR:** Continuous WAL (Write-Ahead Log) archiving is streamed to **MinIO (S3)** object storage.
+*   **Verifiable Recovery:** The repository includes explicit GitOps paths (`gitops/recovery/`) containing runbooks and manifests for greenfield cluster restoration and routine disaster recovery drills.
+
+---
+
+## 🛠️ Technology Stack
+
+| Domain | Tools Used |
+| :--- | :--- |
+| **Infrastructure as Code** | Terraform, Terraform Cloud (Remote State) |
+| **Configuration Management** | Ansible, Cloud-Init |
+| **Container Orchestration** | Kubernetes (K3s), Docker |
+| **GitOps & Delivery** | ArgoCD, Kustomize, GitHub Actions |
+| **Networking & Ingress** | Traefik (Gateway API), Tailscale, Cert-Manager |
+| **Security & Secrets** | HashiCorp Vault, Vault Secrets Operator, SSH CA |
+| **Observability** | Prometheus, Grafana, Alertmanager, Blackbox Exporter |
+| **Data & Storage** | CloudNativePG (PostgreSQL), MinIO (S3 Object Storage) |
+| **Software Engineering** | Go (Golang), Node.js, Express |
+
+---
+
+## 🧭 Navigating the Code (For Reviewers)
+
+If you are reviewing this repository for a technical assessment, here are the key files that demonstrate architectural decision-making:
+
+1.  **Avoiding Split-Brain State:** See `terraform/environments/hybrid/k3s/main.tf` for an architectural notice explaining why Kubernetes namespaces and quotas were removed from Terraform and delegated entirely to ArgoCD.
+2.  **Kustomize Environment Parity:** Compare `gitops/apps/environments/dev/` vs `gitops/apps/environments/production/` to see how base manifests are patched for scale, limits, and storage classes depending on the environment.
+3.  **Infrastructure Routing:** See `gitops/infrastructure/networking/` to view Gateway API and RBAC configurations completely isolated from application namespaces.
+4.  **Custom Development:** Review `apps/health-ingester/` to see a custom Go microservice featuring SQL migrations, native Prometheus ServiceMonitor integration, and Docker optimization.
+
+---
+*Architected and maintained by [Hussein(Zain) Shams Addin]. Feel free to reach out on [LinkedIn](https://www.linkedin.com/in/hshamsadd) to discuss Cloud Native architectures, Platform Engineering, or this platform build.*
