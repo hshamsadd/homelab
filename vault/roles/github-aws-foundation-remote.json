@@ -4,14 +4,14 @@
   "bound_audiences": [
     "vault://homelab"
   ],
-  "bound_subject": "repo:hshamsadd/homelab:environment:homelab-production",
+  "bound_subject": "repo:hshamsadd/hybrid-cloud-gitops:environment:homelab-production",
   "bound_claims_type": "string",
   "bound_claims": {
-    "repository": "hshamsadd/homelab",
+    "repository": "hshamsadd/hybrid-cloud-gitops",
     "ref": "refs/heads/main",
     "environment": "homelab-production",
     "runner_environment": "github-hosted",
-    "workflow_ref": "hshamsadd/homelab/.github/workflows/aws-foundation.yml@refs/heads/main"
+    "workflow_ref": "hshamsadd/hybrid-cloud-gitops/.github/workflows/aws-foundation.yml@refs/heads/main"
   },
   "token_policies": [
     "github-aws-foundation-prod"

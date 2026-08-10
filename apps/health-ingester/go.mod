@@ -1,4 +1,4 @@
-module github.com/hshamsadd/homelab/apps/health-ingester
+module github.com/hshamsadd/hybrid-cloud-gitops/apps/health-ingester
 
 go 1.23.0
 

@@ -6,7 +6,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/hshamsadd/homelab.git
+    repoURL: https://github.com/hshamsadd/hybrid-cloud-gitops.git
     targetRevision: main
     path: gitops/apps/environments/dev
   destination:

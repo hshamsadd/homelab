@@ -13,7 +13,7 @@ spec:
         releaseName: monitoring
         valueFiles:
           - $values/gitops/infrastructure/monitoring-stack/kube-prometheus-stack-values.yaml
-    - repoURL: https://github.com/hshamsadd/homelab.git
+    - repoURL: https://github.com/hshamsadd/hybrid-cloud-gitops.git
       targetRevision: main
       ref: values
   destination:
