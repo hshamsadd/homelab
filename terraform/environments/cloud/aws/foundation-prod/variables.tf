@@ -23,10 +23,10 @@ variable "subnet_cidr" {
 }
 
 variable "instance_type" {
-    type        = string
-    description = "Type of the EC2 instance."
-    default     = "t3.micro"
-    }
+  type        = string
+  description = "Type of the EC2 instance."
+  default     = "t3.micro"
+}
 
 variable "aws_region" {
   type        = string
