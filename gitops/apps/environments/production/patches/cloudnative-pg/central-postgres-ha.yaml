@@ -20,7 +20,6 @@ spec:
     storageClass: local-path
 
   affinity:
-    $patch: replace
     enablePodAntiAffinity: true
     topologyKey: kubernetes.io/hostname
     podAntiAffinityType: required
