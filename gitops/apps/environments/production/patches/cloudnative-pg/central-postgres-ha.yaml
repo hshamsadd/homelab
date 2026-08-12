@@ -31,9 +31,7 @@ spec:
     topologyKey: kubernetes.io/hostname
     podAntiAffinityType: required
     nodeSelector:
-    # 2. SELECTOR: Force these pods to go to the nodes with these labels
       cnpg-ha: "true"
-      workload-type: "database"
 
   bootstrap:
     recovery:
