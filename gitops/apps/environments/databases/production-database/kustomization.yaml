@@ -3,8 +3,8 @@ kind: Kustomization
 namespace: production
 
 resources:
-  - ../../base/minio
-  - ../../base/redis
+  - ../../../base/minio
+  - ../../../base/redis
   - ./patches/minio/minio-local-pv.yaml
   - ./patches/cloudnative-pg/central-postgres-ha.yaml
   - ./patches/cloudnative-pg/barman-objectstore.yaml

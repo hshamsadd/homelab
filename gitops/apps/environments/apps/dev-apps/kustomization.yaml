@@ -3,9 +3,9 @@ kind: Kustomization
 namespace: dev
 
 resources:
-  - ../../base/pgadmin
-  - ../../base/wallabag
-  - ../../base/health-ingester
+  - ../../../base/pgadmin
+  - ../../../base/wallabag
+  - ../../../base/health-ingester
   
 patches:
   - path: patches/wallabag/wallabag-env.yaml
