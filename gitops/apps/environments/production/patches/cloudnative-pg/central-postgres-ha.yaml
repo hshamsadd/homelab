@@ -19,12 +19,21 @@ spec:
     size: 15Gi
     storageClass: local-path
 
+  # 1. TOLERATION: Allow these pods to schedule on the tainted node
+  tolerations:
+    - key: "workload-type"
+      operator: "Equal"
+      value: "database"
+      effect: "NoSchedule"
+
   affinity:
     enablePodAntiAffinity: true
     topologyKey: kubernetes.io/hostname
     podAntiAffinityType: required
     nodeSelector:
+    # 2. SELECTOR: Force these pods to go to the nodes with these labels
       cnpg-ha: "true"
+      workload-type: "database"
 
   bootstrap:
     recovery:
