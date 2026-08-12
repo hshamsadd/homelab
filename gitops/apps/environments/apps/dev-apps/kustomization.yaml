@@ -3,26 +3,11 @@ kind: Kustomization
 namespace: dev
 
 resources:
-  - namespace.yaml
-  - resourcequota.yaml
-  - limitrange.yaml
-  - ../../base/minio
   - ../../base/pgadmin
-  - ../../base/redis
   - ../../base/wallabag
   - ../../base/health-ingester
-  - secrets
-  - patches/minio/minio-local-pv.yaml
-  - patches/minio/minio-bucket-job.yaml
-  - patches/cloudnative-pg/barman-objectstore.yaml
-  - patches/cloudnative-pg/central-postgres-dev.yaml
-  - patches/cloudnative-pg/health-database-dev.yaml
-  - patches/cloudnative-pg/scheduled-backup-dev.yaml
-
+  
 patches:
-  - path: patches/minio/minio-dev-patch.yaml
-  - path: patches/minio/minio-pvc-patch.yaml
-  - path: patches/redis/redis-resources.yaml
   - path: patches/wallabag/wallabag-env.yaml
   - path: patches/wallabag/wallabag-vault-secret.yaml
   - path: patches/pgadmin/pgadmin-vault-secret.yaml
@@ -66,26 +51,6 @@ patches:
                       operator: In
                       values:
                         - worker-1
-  - target:
-      group: apps
-      version: v1
-      kind: Deployment
-      name: redis
-    patch: |-
-      - op: remove
-        path: /spec/template/spec/nodeSelector
-      - op: add
-        path: /spec/template/spec/affinity
-        value:
-          nodeAffinity:
-            preferredDuringSchedulingIgnoredDuringExecution:
-              - weight: 100
-                preference:
-                  matchExpressions:
-                    - key: kubernetes.io/hostname
-                      operator: In
-                      values:
-                        - worker-1
 
 configMapGenerator:
   - name: health-ingester-config
@@ -96,7 +61,7 @@ configMapGenerator:
       - DATABASE_NAME=health_dev
       - DATABASE_SSLMODE=disable
       - GRAFANA_DATABASE_ROLE=health_grafana_dev_user
-
+      
 images:
   - name: wallabag/wallabag
     newName: wallabag/wallabag

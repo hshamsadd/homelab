@@ -3,14 +3,8 @@ kind: Kustomization
 namespace: production
 
 resources:
-  - namespace.yaml
-  - resourcequota.yaml
-  - limitrange.yaml
   - ../../base/minio
-  - ../../base/pgadmin
   - ../../base/redis
-  - ../../base/wallabag
-  - ./secrets
   - ./patches/minio/minio-local-pv.yaml
   - ./patches/cloudnative-pg/central-postgres-ha.yaml
   - ./patches/cloudnative-pg/barman-objectstore.yaml
@@ -20,5 +14,3 @@ resources:
 
 patches:
   - path: ./patches/minio/minio-vault-secret.yaml
-  - path: ./patches/wallabag/wallabag-vault-secret.yaml
-  - path: ./patches/pgadmin/pgadmin-vault-secret.yaml
