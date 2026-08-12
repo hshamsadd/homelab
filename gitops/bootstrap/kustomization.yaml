@@ -5,7 +5,9 @@ resources:
   - root-application.yaml
   - app-infrastructure.yaml
   - app-monitoring.yaml
-  - app-dev.yaml
-  - app-production.yaml
+  - cluster-setup.yaml
+  - stack-apps.yaml
+  - stack-secrets.yaml
+  - stack-databases.yaml
   - vault-secrets-operator.yaml
   - ./argocd-repository
