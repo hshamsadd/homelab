@@ -33,6 +33,11 @@ spec:
     podAntiAffinityType: required
     nodeSelector:
       cnpg-ha: "true"
+    tolerations:
+      - key: "workload-type"
+        operator: "Equal"
+        value: "database"
+        effect: "NoSchedule"
 
   bootstrap:
     recovery:
