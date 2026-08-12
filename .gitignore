@@ -11,9 +11,17 @@ kubeconfig
 
 # Block everything inside secrets directories by default
 **/secrets/*
+
 # Exceptions: Allow kustomization and sealed variants
 !**/secrets/kustomization.yaml
 !**/secrets/*-sealed.yaml
+
+# Allow subdirectories inside secrets for the Layer-First architecture
+!**/secrets/*/
+!**/secrets/*/kustomization.yaml
+!**/secrets/*/vault-serviceaccount.yaml
+!**/secrets/*/vault-auth.yaml
+!**/secrets/*/vault-static-secret-*.yaml
 
 # Terraform
 .terraform/
