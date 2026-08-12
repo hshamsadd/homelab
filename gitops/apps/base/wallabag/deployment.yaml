@@ -15,7 +15,7 @@ spec:
         app: wallabag
     spec:
       nodeSelector:
-        kubernetes.io/hostname: server
+        kubernetes.io/hostname: worker-1
       containers:
         - name: wallabag
           image: wallabag/wallabag:latest

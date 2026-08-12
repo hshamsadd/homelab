@@ -13,7 +13,7 @@ spec:
         app: pgadmin
     spec:
       nodeSelector:
-        kubernetes.io/hostname: server
+        kubernetes.io/hostname: worker-1
       containers:
         - name: pgadmin
           image: dpage/pgadmin4:8.14
