@@ -18,11 +18,6 @@ spec:
     size: 15Gi
     storageClass: local-path
 
-  affinity:
-    enablePodAntiAffinity: false
-    nodeSelector:
-      kubernetes.io/hostname: worker-2
-
   plugins:
     - name: barman-cloud.cloudnative-pg.io
       isWALArchiver: true
