@@ -30,3 +30,5 @@ spec:
               value: DATABASE_NAME_PLACEHOLDER
             - name: N8N_HOST
               value: DOMAIN_PLACEHOLDER
+            - name: WEBHOOK_URL
+              value: "http://DOMAIN_PLACEHOLDER/"
