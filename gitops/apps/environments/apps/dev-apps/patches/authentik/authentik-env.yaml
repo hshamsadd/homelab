@@ -5,6 +5,8 @@ metadata:
 spec:
   template:
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker-1
       containers:
         - name: authentik-server
           env:
@@ -20,6 +22,8 @@ metadata:
 spec:
   template:
     spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker-1
       containers:
         - name: authentik-worker
           env:
