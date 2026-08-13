@@ -10,6 +10,7 @@ resources:
   - central-postgres-dev.yaml
   - barman-objectstore.yaml
   - health-database-dev.yaml
+  - n8n-database-dev.yaml
   - scheduled-backup-dev.yaml
 
 patches:

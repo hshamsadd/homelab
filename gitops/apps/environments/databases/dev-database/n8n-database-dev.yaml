@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: n8n-dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  name: n8n_dev
+  owner: n8n_dev_user
+  ensure: present
+  cluster:
+    name: central-postgres-dev

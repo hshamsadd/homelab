@@ -6,11 +6,14 @@ resources:
   - ../../../base/pgadmin
   - ../../../base/wallabag
   - ../../../base/health-ingester
+  - ../../../base/n8n
 
 patches:
   - path: patches/wallabag/wallabag-env.yaml
   - path: patches/wallabag/wallabag-vault-secret.yaml
   - path: patches/pgadmin/pgadmin-vault-secret.yaml
+  - path: patches/n8n/n8n-env.yaml
+  - path: patches/n8n/n8n-vault-secret.yaml
   - target:
       group: apps
       version: v1

@@ -38,6 +38,19 @@ spec:
         passwordSecret:
           name: cnpg-health-grafana-dev-credentials-vault
 
+      - name: n8n_dev_user
+        ensure: present
+        comment: n8n automation database owner
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        inherit: true
+        passwordSecret:
+          name: cnpg-n8n-dev-credentials-vault
+
   resources:
     requests:
       memory: 512Mi
