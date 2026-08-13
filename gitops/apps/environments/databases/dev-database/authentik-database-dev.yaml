@@ -1,0 +1,12 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: authentik-dev
+  annotations:
+    argocd.argoproj.io/sync-wave: "3"
+spec:
+  name: authentik_dev
+  owner: authentik_dev_user
+  ensure: present
+  cluster:
+    name: central-postgres-dev

@@ -11,6 +11,7 @@ resources:
   - barman-objectstore.yaml
   - health-database-dev.yaml
   - n8n-database-dev.yaml
+  - authentik-database-dev.yaml
   - scheduled-backup-dev.yaml
 
 patches:

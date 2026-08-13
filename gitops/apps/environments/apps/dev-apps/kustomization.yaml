@@ -7,6 +7,7 @@ resources:
   - ../../../base/wallabag
   - ../../../base/health-ingester
   - ../../../base/n8n
+  - ../../../base/authentik
 
 patches:
   - path: patches/wallabag/wallabag-env.yaml
@@ -14,6 +15,7 @@ patches:
   - path: patches/pgadmin/pgadmin-vault-secret.yaml
   - path: patches/n8n/n8n-env.yaml
   - path: patches/n8n/n8n-vault-secret.yaml
+  - path: patches/authentik/authentik-env.yaml
   - target:
       group: apps
       version: v1

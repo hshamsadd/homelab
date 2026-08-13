@@ -51,6 +51,19 @@ spec:
         passwordSecret:
           name: cnpg-n8n-dev-credentials-vault
 
+      - name: authentik_dev_user
+        ensure: present
+        comment: Authentik Identity Provider database owner
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        inherit: true
+        passwordSecret:
+          name: cnpg-authentik-dev-credentials-vault
+
   resources:
     requests:
       memory: 512Mi

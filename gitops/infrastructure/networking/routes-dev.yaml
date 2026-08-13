@@ -53,3 +53,17 @@ spec:
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
       backendRefs: [ { name: n8n, port: 80 } ]
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: authentik-dev-route
+  namespace: dev
+spec:
+  parentRefs:
+    - name: local-cluster-gateway
+      namespace: infrastructure
+  hostnames: [ "authentik-dev.home" ]
+  rules:
+    - matches: [ { path: { type: PathPrefix, value: / } } ]
+      backendRefs: [ { name: authentik, port: 80 } ]

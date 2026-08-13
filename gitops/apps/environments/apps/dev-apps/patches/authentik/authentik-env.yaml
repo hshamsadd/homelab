@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-server
+spec:
+  template:
+    spec:
+      containers:
+        - name: authentik-server
+          env:
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "central-postgres-dev-rw.dev.svc.cluster.local"
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: "authentik_dev"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-worker
+spec:
+  template:
+    spec:
+      containers:
+        - name: authentik-worker
+          env:
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "central-postgres-dev-rw.dev.svc.cluster.local"
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: "authentik_dev"
