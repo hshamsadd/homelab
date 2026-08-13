@@ -26,3 +26,12 @@ terraform/modules/k8s-namespace
 should eventually be retired after confirming no Terraform state still references it.
 
 The gitops/.../secrets directories may remain, but their future contents should be Vault Secrets Operator references—not plaintext Secrets or long-term SealedSecrets.
+
+
+linkding
+docmost
+hoarder
+linkwarden
+mariadb
+elastic search
+mongodb
