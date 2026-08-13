@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: wallabag
+spec:
+  template:
+    spec:
+      containers:
+        - name: wallabag
+          env:
+            - name: SYMFONY__ENV__DOMAIN_NAME
+              value: "http://wallabag.home"
+            - name: SYMFONY__ENV__REDIS_HOST
+              value: "redis.production.svc.cluster.local"

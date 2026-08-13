@@ -40,11 +40,11 @@ spec:
 
   resources:
     requests:
-      cpu: 500m
       memory: 512Mi
+      cpu: 500m
     limits:
-      cpu: "1"
       memory: 1Gi
+      cpu: "1"
 
   storage:
     size: 15Gi

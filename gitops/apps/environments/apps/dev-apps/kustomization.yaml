@@ -6,7 +6,7 @@ resources:
   - ../../../base/pgadmin
   - ../../../base/wallabag
   - ../../../base/health-ingester
-  
+
 patches:
   - path: patches/wallabag/wallabag-env.yaml
   - path: patches/wallabag/wallabag-vault-secret.yaml
@@ -61,7 +61,7 @@ configMapGenerator:
       - DATABASE_NAME=health_dev
       - DATABASE_SSLMODE=disable
       - GRAFANA_DATABASE_ROLE=health_grafana_dev_user
-      
+
 images:
   - name: wallabag/wallabag
     newName: wallabag/wallabag

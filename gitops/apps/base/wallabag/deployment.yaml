@@ -25,7 +25,7 @@ spec:
             - name: SYMFONY__ENV__DATABASE_DRIVER
               value: pdo_pgsql
             - name: SYMFONY__ENV__DATABASE_HOST
-              value: central-postgres-rw.production.svc.cluster.local
+              value: DATABASE_HOST_PLACEHOLDER
             - name: SYMFONY__ENV__DATABASE_PORT
               value: "5432"
             - name: SYMFONY__ENV__DATABASE_NAME
@@ -41,12 +41,12 @@ spec:
                   name: wallabag-credentials
                   key: DATABASE_PASSWORD
             - name: SYMFONY__ENV__DOMAIN_NAME
-              value: http://wallabag.home
+              value: DOMAIN_PLACEHOLDER
             - name: SYMFONY__ENV__DATABASE_CHARSET
               value: utf8
             - name: SYMFONY__ENV__FOSUSER_REGISTRATION
               value: "false"
             - name: SYMFONY__ENV__REDIS_HOST
-              value: redis.production.svc.cluster.local
+              value: REDIS_HOST_PLACEHOLDER
             - name: SYMFONY__ENV__REDIS_PORT
               value: "6379"

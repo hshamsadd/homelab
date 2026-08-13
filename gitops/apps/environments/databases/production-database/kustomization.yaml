@@ -5,12 +5,12 @@ namespace: production
 resources:
   - ../../../base/minio
   - ../../../base/redis
-  - ./patches/minio/minio-local-pv.yaml
-  - ./patches/cloudnative-pg/central-postgres-ha.yaml
-  - ./patches/cloudnative-pg/barman-objectstore.yaml
-  - ./patches/cloudnative-pg/scheduled-backup-ha.yaml
-  - ./patches/cloudnative-pg/oci-postgres-dr-mirror-cronjob.yaml
-  - ./patches/minio/minio-bucket-job.yaml
+  - central-postgres-ha.yaml
+  - barman-objectstore.yaml
+  - scheduled-backup-ha.yaml
+  - oci-postgres-dr-mirror-cronjob.yaml
+  - minio-local-pv.yaml
+  - minio-bucket-job.yaml
 
 patches:
   - path: ./patches/minio/minio-vault-secret.yaml

@@ -5,12 +5,12 @@ namespace: dev
 resources:
   - ../../../base/minio
   - ../../../base/redis
-  - patches/minio/minio-local-pv.yaml
-  - patches/minio/minio-bucket-job.yaml
-  - patches/cloudnative-pg/barman-objectstore.yaml
-  - patches/cloudnative-pg/central-postgres-dev.yaml
-  - patches/cloudnative-pg/health-database-dev.yaml
-  - patches/cloudnative-pg/scheduled-backup-dev.yaml
+  - minio-local-pv.yaml
+  - minio-bucket-job.yaml
+  - central-postgres-dev.yaml
+  - barman-objectstore.yaml
+  - health-database-dev.yaml
+  - scheduled-backup-dev.yaml
 
 patches:
   - path: patches/minio/minio-dev-patch.yaml

@@ -32,12 +32,12 @@ spec:
             - name: MINIO_ROOT_USER
               valueFrom:
                 secretKeyRef:
-                  name: cnpg-minio-production-credentials
+                  name: cnpg-minio-base-credentials
                   key: ACCESS_KEY_ID
             - name: MINIO_ROOT_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: cnpg-minio-production-credentials
+                  name: cnpg-minio-base-credentials
                   key: SECRET_ACCESS_KEY
             - name: MINIO_PROMETHEUS_AUTH_TYPE
               value: public
