@@ -5,7 +5,7 @@ metadata:
   annotations:
     argocd.argoproj.io/sync-wave: "1"
 spec:
-  ttlSecondsAfterFinished: 300   # 👈 ADD THIS: Automatically deletes the job object 5 minutes after it completes
+  ttlSecondsAfterFinished: 300
   backoffLimit: 6
   template:
     spec:
