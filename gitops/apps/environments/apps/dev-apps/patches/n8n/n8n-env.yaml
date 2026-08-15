@@ -16,5 +16,7 @@ spec:
               value: "n8n_dev"
             - name: N8N_HOST
               value: "n8n-dev.home"
-            - name: WEBHOOK_URL
+            - name: N8N_WEBHOOK_URL
               value: "http://n8n-dev.home/"
+            - name: N8N_PORT
+              value: "5678"
