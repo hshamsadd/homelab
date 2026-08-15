@@ -20,3 +20,5 @@ spec:
               value: "http://n8n-dev.home/"
             - name: N8N_PORT
               value: "5678"
+            - name: N8N_LISTEN_ADDRESS
+              value: "0.0.0.0"
