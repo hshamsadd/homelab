@@ -20,7 +20,7 @@ spec:
       containers:
         - name: authentik-server
           image: ghcr.io/goauthentik/server:2024.12.3
-          args: ["server"]
+          args: [ "server" ]
           ports:
             - name: http
               containerPort: 9000
@@ -52,7 +52,7 @@ spec:
               valueFrom:
                 secretKeyRef:
                   name: authentik-credentials-vault
-                  key: AUTHENTIK_ADMIN_EMAIL
+                  key: AUTHENTIK_ADMIN_USERNAME
             - name: AUTHENTIK_BOOTSTRAP_PASSWORD
               valueFrom:
                 secretKeyRef:

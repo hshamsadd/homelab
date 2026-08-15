@@ -64,6 +64,23 @@ spec:
         passwordSecret:
           name: cnpg-authentik-dev-credentials-vault
 
+      - name: docmost_dev_user
+        ensure: present
+        comment: Docmost database owner
+        login: true
+        superuser: false
+        createdb: false
+        createrole: false
+        replication: false
+        bypassrls: false
+        inherit: true
+        passwordSecret:
+          name: cnpg-docmost-dev-credentials-vault
+
+    databases:
+      - name: docmost_dev
+        owner: docmost_dev_user
+
   resources:
     requests:
       memory: 512Mi

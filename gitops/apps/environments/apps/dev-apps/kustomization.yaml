@@ -9,6 +9,7 @@ resources:
   - ../../../base/n8n
   - ../../../base/authentik
   - ../../../base/nodered
+  - ../../../base/docmost
 
 patches:
   - path: patches/wallabag/wallabag-env.yaml
@@ -18,6 +19,7 @@ patches:
   - path: patches/n8n/n8n-vault-secret.yaml
   - path: patches/authentik/authentik-env.yaml
   - path: patches/nodered/nodered-env.yaml
+  - path: patches/docmost/docmost-env.yaml
   - target:
       group: apps
       version: v1

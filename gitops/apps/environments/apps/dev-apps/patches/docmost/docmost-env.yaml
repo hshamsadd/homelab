@@ -1,0 +1,14 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: docmost
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker-1
+      containers:
+        - name: docmost
+          env:
+            - name: DATABASE_URL
+              value: "postgresql://docmost_dev_user:$(DATABASE_PASSWORD)@central-postgres-dev-rw.dev.svc.cluster.local:5432/docmost_dev"
