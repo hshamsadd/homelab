@@ -91,15 +91,8 @@ spec:
 
   affinity:
     enablePodAntiAffinity: true
-    nodeAffinity:
-      requiredDuringSchedulingIgnoredDuringExecution:
-        nodeSelectorTerms:
-          - matchExpressions:
-              - key: kubernetes.io/hostname
-                operator: In
-                values:
-                  - worker-1
-                  - worker-2
+    nodeSelector:
+      node-role.kubernetes.io/worker: "true"
     tolerations:
       - key: "workload-type"
         operator: "Equal"
