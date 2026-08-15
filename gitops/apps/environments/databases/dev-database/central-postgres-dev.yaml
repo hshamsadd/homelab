@@ -92,7 +92,7 @@ spec:
   affinity:
     enablePodAntiAffinity: true
     nodeSelector:
-      node-role.kubernetes.io/worker: "true"
+      cnpg-ha: "true"
     tolerations:
       - key: "workload-type"
         operator: "Equal"
