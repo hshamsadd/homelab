@@ -26,14 +26,12 @@ spec:
                 secretKeyRef:
                   name: docmost-credentials-vault
                   key: APP_SECRET
-            - name: DATABASE_PASSWORD
+            - name: DATABASE_URL
               valueFrom:
                 secretKeyRef:
                   name: docmost-credentials-vault
-                  key: DATABASE_PASSWORD
+                  key: DATABASE_URL
             - name: APP_URL
-              value: ""
-            - name: DATABASE_URL
               value: ""
             - name: REDIS_URL
               value: ""
