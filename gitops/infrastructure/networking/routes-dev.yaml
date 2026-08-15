@@ -52,6 +52,12 @@ spec:
   hostnames: [ "n8n-dev.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: authentik-dev-forwardauth
       backendRefs: [ { name: n8n, port: 80 } ]
 ---
 apiVersion: gateway.networking.k8s.io/v1
@@ -100,4 +106,10 @@ spec:
   hostnames: [ "docmost-dev.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: authentik-dev-forwardauth
       backendRefs: [ { name: docmost, port: 80 } ]
