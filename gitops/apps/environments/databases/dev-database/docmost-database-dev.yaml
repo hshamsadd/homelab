@@ -1,0 +1,10 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Database
+metadata:
+  name: docmost-dev-db
+  namespace: dev
+spec:
+  name: docmost_dev
+  owner: docmost_dev_user
+  cluster:
+    name: central-postgres-dev

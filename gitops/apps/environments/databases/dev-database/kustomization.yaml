@@ -12,6 +12,7 @@ resources:
   - health-database-dev.yaml
   - n8n-database-dev.yaml
   - authentik-database-dev.yaml
+  - docmost-database-dev.yaml
   - scheduled-backup-dev.yaml
 
 patches:

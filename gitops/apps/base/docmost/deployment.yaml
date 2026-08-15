@@ -21,8 +21,6 @@ spec:
             - name: http
               containerPort: 3000
           env:
-            - name: APP_URL
-              value: "http://docmost-dev.home"
             - name: APP_SECRET
               valueFrom:
                 secretKeyRef:
@@ -33,5 +31,9 @@ spec:
                 secretKeyRef:
                   name: docmost-credentials-vault
                   key: DATABASE_PASSWORD
+            - name: APP_URL
+              value: ""
+            - name: DATABASE_URL
+              value: ""
             - name: REDIS_URL
-              value: "redis://redis.dev.svc.cluster.local:6379"
+              value: ""

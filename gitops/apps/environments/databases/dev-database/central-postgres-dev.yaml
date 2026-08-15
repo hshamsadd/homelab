@@ -77,10 +77,6 @@ spec:
         passwordSecret:
           name: cnpg-docmost-dev-credentials-vault
 
-    databases:
-      - name: docmost_dev
-        owner: docmost_dev_user
-
   resources:
     requests:
       memory: 512Mi
