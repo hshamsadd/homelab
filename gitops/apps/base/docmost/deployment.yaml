@@ -28,7 +28,7 @@ spec:
                 secretKeyRef:
                   name: docmost-credentials-vault
                   key: APP_SECRET
-            - name: DATABASE_URL
+            - name: DATABASE_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: docmost-credentials-vault
