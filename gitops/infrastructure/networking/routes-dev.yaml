@@ -80,6 +80,12 @@ spec:
   hostnames: [ "nodered-dev.home" ]
   rules:
     - matches: [ { path: { type: PathPrefix, value: / } } ]
+      filters:
+        - type: ExtensionRef
+          extensionRef:
+            group: traefik.io
+            kind: Middleware
+            name: authentik-dev-forwardauth
       backendRefs: [ { name: nodered, port: 80 } ]
 ---
 apiVersion: gateway.networking.k8s.io/v1
