@@ -18,4 +18,4 @@ resources:
   - networking/routes-dev.yaml
   - networking/routes-monitoring.yaml
   - networking/routes-argocd.yaml
-  - networking/authentik-middleware.yaml
+  - networking/authentik-dev-middleware.yaml
