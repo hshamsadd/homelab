@@ -75,6 +75,12 @@ grafana:
     existingSecret: grafana-admin-credentials-vault
     userKey: ADMIN_USER
     passwordKey: ADMIN_PASSWORD
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki.monitoring.svc.cluster.local:3100
+      access: proxy
+      isDefault: false
   persistence:
     enabled: true
     type: pvc
@@ -143,4 +149,3 @@ prometheus-node-exporter:
     limits:
       cpu: 250m
       memory: 256Mi
-
