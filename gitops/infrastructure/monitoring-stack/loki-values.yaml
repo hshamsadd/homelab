@@ -13,6 +13,8 @@ loki:
 
 promtail:
   enabled: true
+  tolerations:
+    - operator: Exists
   resources:
     requests:
       cpu: 50m
