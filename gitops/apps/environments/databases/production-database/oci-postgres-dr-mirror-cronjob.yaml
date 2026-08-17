@@ -4,7 +4,7 @@ metadata:
   name: postgres-backups-dr-mirror
   namespace: production
 spec:
-  schedule: "30 20 * * *"
+  schedule: "*/15 * * * *"
   timeZone: "Etc/UTC"
   concurrencyPolicy: Forbid
   successfulJobsHistoryLimit: 3
