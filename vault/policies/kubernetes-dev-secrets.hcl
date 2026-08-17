@@ -5,3 +5,7 @@ path "kv/data/kubernetes/dev/*" {
 path "kv/metadata/kubernetes/dev/*" {
   capabilities = ["read", "list"]
 }
+
+path "kv/data/kubernetes/production/oci-postgres-dr-credentials" {
+  capabilities = ["read"]
+}

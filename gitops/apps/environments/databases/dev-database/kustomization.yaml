@@ -9,6 +9,7 @@ resources:
   - minio-bucket-job.yaml
   - central-postgres-dev.yaml
   - barman-objectstore.yaml
+  - oci-postgres-dr-mirror-cronjob.yaml
   - health-database-dev.yaml
   - n8n-database-dev.yaml
   - authentik-database-dev.yaml
