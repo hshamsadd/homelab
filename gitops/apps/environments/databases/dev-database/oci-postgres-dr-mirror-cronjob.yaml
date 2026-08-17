@@ -61,7 +61,6 @@ spec:
                 - |
                   mc alias set local http://minio.dev.svc.cluster.local:9000 "$MINIO_ACCESS_KEY" "$MINIO_SECRET_KEY" --api S3v4
                   mc alias set oci "$OCI_S3_ENDPOINT" "$OCI_ACCESS_KEY_ID" "$OCI_SECRET_ACCESS_KEY" --api S3v4 --path on
-                  # Notice the /dev folder added to the end of the Oracle path below!
-                  mc mirror --overwrite --preserve local/postgres-backups "oci/${OCI_BUCKET}/dev"
-                  mc du local/postgres-backups
+                  mc mirror --overwrite --preserve local/postgres-backups-dev "oci/${OCI_BUCKET}/dev"
+                  mc du local/postgres-backups-dev
                   mc du "oci/${OCI_BUCKET}/dev"
