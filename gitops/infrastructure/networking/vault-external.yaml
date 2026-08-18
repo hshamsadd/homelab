@@ -5,7 +5,7 @@ metadata:
   namespace: infrastructure
   annotations:
     traefik.ingress.kubernetes.io/service.serversscheme: https
-    traefik.ingress.kubernetes.io/service.serverstransport: infrastructure-vault-backend@kubernetescrd
+    traefik.ingress.kubernetes.io/service.serverstransport: vault-backend@kubernetescrd
 spec:
   ports:
     - name: https
