@@ -17,7 +17,8 @@ patches:
   - path: patches/pgadmin/pgadmin-vault-secret.yaml
   - path: patches/n8n/n8n-env.yaml
   - path: patches/n8n/n8n-vault-secret.yaml
-  - path: patches/authentik/authentik-env.yaml
+  - path: patches/authentik/authentik-server-env.yaml
+  - path: patches/authentik/authentik-worker-env.yaml
   - path: patches/nodered/nodered-env.yaml
   - path: patches/docmost/docmost-env.yaml
   - target:

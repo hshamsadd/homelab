@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: authentik-worker
+spec:
+  template:
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: worker-1
+      containers:
+        - name: authentik-worker
+          resources:
+            limits:
+              memory: "2Gi"
+            requests:
+              memory: "500Mi"
+              cpu: "100m"
+          env:
+            - name: AUTHENTIK_POSTGRESQL__HOST
+              value: "central-postgres-dev-rw.dev.svc.cluster.local"
+            - name: AUTHENTIK_POSTGRESQL__NAME
+              value: "authentik_dev"
