@@ -3,8 +3,8 @@ terraform {
     organization = "zshamsadd-devops"
 
     workspaces {
-      project = "Cloud"
-      name    = "oci-remote-compute-prod"
+      project = "On-Premises"
+      name    = "proxmox-infra-core"
     }
   }
 }
