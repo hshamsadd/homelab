@@ -10,17 +10,28 @@ on:
     paths:
       - 'bicep/**'
 
+permissions:
+  id-token: write
+  contents: read
+
 jobs:
-  lint:
-    name: Lint and Validate Bicep
+  validate-and-plan:
+    name: OIDC Azure Authentication & Bicep Build
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Code
+      - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Run Bicep Linter
+      - name: Authenticate to Azure via Entra ID OIDC
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Build and Lint Bicep Templates
         run: |
-          echo "Linting main.bicep and its modules..."
+          echo "Compiling Bicep templates to ARM..."
           az bicep build --file bicep/main.bicep
           
       # In a live enterprise environment, the next step would be OIDC Authentication 
