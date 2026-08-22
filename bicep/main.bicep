@@ -16,3 +16,4 @@ module aks 'modules/aks.bicep' = {
     clusterName: 'aks-bicep-prod-01'
   }
 }
+// Trigger GitHub Actions OIDC test
