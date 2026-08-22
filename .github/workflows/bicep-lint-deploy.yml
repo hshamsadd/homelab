@@ -1,39 +1,61 @@
-name: Azure Bicep CI
+name: Azure Bicep CI/CD
 
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - 'bicep/**'
+    paths: [ 'bicep/**' ]
   pull_request:
     branches: [ "main" ]
-    paths:
-      - 'bicep/**'
+    paths: [ 'bicep/**' ]
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  validate-and-plan:
-    name: OIDC Azure Authentication & Bicep Build
+  lint:
+    name: Lint Bicep Code
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
+      - name: Run Bicep Build
+        run: az bicep build --file bicep/main.bicep
 
-      - name: Authenticate to Azure via Entra ID OIDC
-        uses: azure/login@v2
+  plan:
+    name: Azure What-If (Plan)
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
         with:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
-
-      - name: Build and Lint Bicep Templates
+      
+      - name: Run What-If
         run: |
-          echo "Compiling Bicep templates to ARM..."
-          az bicep build --file bicep/main.bicep
+          az deployment sub what-if \
+            --name "gha-plan-${{ github.run_id }}" \
+            --location germanywestcentral \
+            --template-file bicep/main.bicep
+
+  apply:
+    name: Azure Deployment (Apply)
+    needs: plan
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
           
-      # In a live enterprise environment, the next step would be OIDC Authentication 
-      # to Entra ID (Azure AD) followed by an 'az deployment sub what-if' command.
-      # We skip actual deployment here to prevent cloud costs.
+      - name: Run Deployment
+        run: |
+          az deployment sub create \
+            --name "gha-deploy-${{ github.run_id }}" \
+            --location germanywestcentral \
+            --template-file bicep/main.bicep

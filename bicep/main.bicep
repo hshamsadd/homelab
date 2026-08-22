@@ -1,6 +1,6 @@
 targetScope = 'subscription'
 
-param location string = 'westeurope'
+param location string = 'germanywestcentral'
 param rgName string = 'rg-bicep-foundation-prod'
 
 resource rg 'Microsoft.Resources/resourceGroups@2022-09-01' = {
@@ -16,4 +16,24 @@ module aks 'modules/aks.bicep' = {
     clusterName: 'aks-bicep-prod-01'
   }
 }
-// Trigger GitHub Actions OIDC test
+
+module vnet 'modules/network.bicep' = {
+  scope: rg
+  name: 'vnetDeployment'
+  params: {
+    location: location
+    vnetName: 'vnet-bicep-prod-01'
+  }
+}
+
+module vm 'modules/ubuntu-vm.bicep' = {
+  scope: rg
+  name: 'vmDeployment'
+  params: {
+    location: location
+    vmName: 'vm-bicep-prod-01'
+    subnetId: vnet.outputs.subnetId
+    adminUsername: 'azureadmin'
+    sshPubKey: 'ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC... (mock-key-for-testing)' 
+  }
+}
