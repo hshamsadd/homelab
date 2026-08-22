@@ -1,4 +1,4 @@
-# ☁️ Enterprise Hybrid Cloud GitOps Platform 
+# ☁️ Enterprise Hybrid Cloud GitOps Platform
 
 [![Infrastructure as Code](https://img.shields.io/badge/IaC-Terraform-7B42BC?style=flat-square&logo=terraform)](terraform/)
 [![Configuration Management](https://img.shields.io/badge/Config-Ansible-EE0000?style=flat-square&logo=ansible)](ansible/)
