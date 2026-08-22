@@ -1,0 +1,28 @@
+name: Azure Bicep CI
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'bicep/**'
+  pull_request:
+    branches: [ "main" ]
+    paths:
+      - 'bicep/**'
+
+jobs:
+  lint:
+    name: Lint and Validate Bicep
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Run Bicep Linter
+        run: |
+          echo "Linting main.bicep and its modules..."
+          az bicep build --file bicep/main.bicep
+          
+      # In a live enterprise environment, the next step would be OIDC Authentication 
+      # to Entra ID (Azure AD) followed by an 'az deployment sub what-if' command.
+      # We skip actual deployment here to prevent cloud costs.
